@@ -4,8 +4,6 @@
  */
 
 var express = require('express');
-//var routes = require('./routes');
-//var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
 
@@ -19,7 +17,6 @@ app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-//app.use(app.router);
 app.use(express.static(path.join(__dirname, 'public')));
 app.engine('html', require('ejs').renderFile);
 
@@ -31,6 +28,11 @@ if ('development' == app.get('env')) {
 app.get('/', function(req, res) {
     res.render('index.html');
   });
+
+app.post('/Entity1', function(request, response){
+  console.log(request.body);      // your JSON
+  response.send(request.body);    // echo the result back
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

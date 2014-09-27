@@ -1,6 +1,28 @@
 <html>
-<head></head>
+<head>
+
+    <script src="https://cdn.firebase.com/js/client/1.0.24/firebase.js"></script>
+
+    <script type="text/javascript">
+        var model = {};
+        var myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
+
+        myFirebaseRef.child("current").on("value", function(snapshot) {
+
+            model = snapshot.val();
+
+            console.log(JSON.stringify(model));
+            console.log(model['0'].Name);
+        });
+    </script>
+</head>
 <body>
-<h1>ES+Firebase Web Client</h1>
+    <h1>ES+Firebase Web Client</h1>
+
+
+    <footer>
+        <p>&copy; 2014, Brandon Wilhite</p>
+    </footer>
+
 </body>
 </html>
