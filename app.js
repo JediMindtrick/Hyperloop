@@ -75,7 +75,7 @@ var pushToStream = function(msg){
     };
 
     var options = {
-      host: '192.168.164.142',
+      host: '192.168.164.143',
       port: 2113,
       path: '/streams/Sandbox-Entity1-f',
       method: 'POST',
@@ -123,11 +123,13 @@ app.post('/Entity1', function(req, res){
 });
 
 app.put('/Entity1', function(req, res){
-  console.log('update: ' + req.body);
+  console.log('update: ' + JSON.stringify(req.body));
 
   var _entity = updateEntity(req.body);
 
   var _msg = [_entity];
+
+    console.log('pushing: ' + _msg);
 
   pushToStream(_msg);
 

@@ -43,7 +43,7 @@ var pushToStream = function(msg){
     };
 
     var options = {
-      host: '192.168.164.141',
+      host: '192.168.164.143',
       port: 2113,
       path: '/streams/Sandbox-Entity1-f',
       method: 'POST',

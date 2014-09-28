@@ -1,44 +1,66 @@
 <html ng-app="ESPlus">
 <head>
+    <style>
+table {
+/*    width: 100%;*/
+    width: 1000px;
+}
+
+thead, tbody { display: block; }
+
+tbody {
+/*    height: 250px;*/
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+tbody td, thead th {
+    width: 20%;  /* Optional */
+}
+
+tbody input {
+    width: 100%;
+}
+    </style>
 
     <script type="text/javascript" src="/javascripts/firebase.js"></script>
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui-router.min.js"></script>
-
-<!--    <script src="https://cdn.firebase.com/js/client/1.0.24/firebase.js"></script>-->
-<!--
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui/0.4.0/angular-ui.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
--->
-
 </head>
 <body ng-controller="MainCtrl">
 
 <div style="margin-left:50px;">
     <h1>ES+Firebase Web Client</h1>
 
-    <button ng-click="createEntity1()">Create!</button>
+    <button ng-click="createEntity()">Create!</button>
 
-    <table>
+    <table style="height: 30px;">
 
-        <thead>
+        <tbody style="border: solid thin black; height:150px;">
             <tr>
-                <th>Originating Event Id</th>
-                <th>Entity Id</th>
-                <th>Name</th>
-                <th>Which Entity</th>
+                <td>{{selectedKey}}</td>
+                <td>{{selected.Id}}</td>
+                <td><input ng-model="selected.Name"/></td>
+                <td><input ng-model="selected.WhichEntity" /></td>
+                <td><button ng-click="updateEntity()">Update!</button></td>
+                <td><button ng-click=";">Add Row!</button></td>
             </tr>
-        </thead>
+             <tr ng-repeat="step in selected.Steps">
+                <td><input ng-model="step.Name" /></td>
+                <td><input type="date" ng-model="step.Start" /></td>
+                <td><input type="date" ng-model="step.End" /></td>
+                <td><input ng-model="step.Note" /></td>
+            </tr>
+        </tbody>
 
-        <tbody>
+        <tbody style="height:250px;">
             <tr ng-repeat="(key,val) in model" ng-if="key != '_metadata'">
                 <td>{{key}}</td>
                 <td>{{val.Id}}</td>
                 <td><input ng-model="val.Name" /></td>
                 <td><input ng-model="val.WhichEntity" /></td>
-                <td><button ng-click="updateEntity1(val)">Update!</button></td>
+                <td><button ng-click="selectEntity(key,val)">Edit</button></td>
             </tr>
         </tbody>
 
@@ -52,7 +74,7 @@
 
 
 <script type="text/javascript">
-    var model = {};
+
     myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
 
     function runScope(angularScope,callback){
@@ -88,8 +110,26 @@ angular.module('ESPlus',[])
     };
 
     $scope.model = {};
+    $scope.selected = {
+        Name: 'fizz',
+        WhichEntity: 5,
+        Id: 'buzz',
+        Steps: [
+            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
+            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
+            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
+            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''}
 
-    $scope.createEntity1 = function() {
+        ]
+    };
+    $scope.selectedKey = '-1';
+
+    $scope.selectEntity = function(key,val){
+        $scope.selected = val;
+        $scope.selectedKey = key;
+    };
+
+    $scope.createEntity = function() {
 
         $http.post('/Entity1',
         {
@@ -106,9 +146,9 @@ angular.module('ESPlus',[])
 
     };
 
-    $scope.updateEntity1 = function(val){
+    $scope.updateEntity = function(){
 
-        $http.put('/Entity1',val)
+        $http.put('/Entity1',$scope.selected)
         .then(function(data){
             $log.log('http success: ' + JSON.stringify(data));
         })
