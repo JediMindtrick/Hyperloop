@@ -1,28 +1,129 @@
-<html>
+<html ng-app="ESPlus">
 <head>
 
     <script src="https://cdn.firebase.com/js/client/1.0.24/firebase.js"></script>
-
-    <script type="text/javascript">
-        var model = {};
-        var myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
-
-        myFirebaseRef.child("current").on("value", function(snapshot) {
-
-            model = snapshot.val();
-
-            console.log(JSON.stringify(model));
-            console.log(model['0'].Name);
-        });
-    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui/0.4.0/angular-ui.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.8/angular-ui-router.min.js"></script>
 </head>
-<body>
+<body ng-controller="MainCtrl">
+
+<div style="margin-left:50px;">
     <h1>ES+Firebase Web Client</h1>
 
+    <button ng-click="createEntity1()">Create!</button>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>Originating Event Id</th>
+                <th>Entity Id</th>
+                <th>Name</th>
+                <th>Which Entity</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr ng-repeat="(key,val) in model" ng-if="key != '_metadata'">
+                <td>{{key}}</td>
+                <td>{{val.Id}}</td>
+                <td><input ng-model="val.Name" /></td>
+                <td><input ng-model="val.WhichEntity" /></td>
+                <td><button ng-click="updateEntity1(val)">Update!</button></td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>
 
     <footer>
         <p>&copy; 2014, Brandon Wilhite</p>
     </footer>
+
+
+<script type="text/javascript">
+    var model = {};
+    myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
+
+    function runScope(angularScope,callback){
+
+		var result = void 0;
+		var phase = angularScope.$root.$$phase;
+
+		if(phase == '$apply' || phase == '$digest'){
+			result = callback(angularScope);
+		}else{
+			angularScope.$apply(function(){
+				result = callback(angularScope);
+			});
+		}
+
+	    return result;
+	}
+
+</script>
+<script type="text/javascript">
+
+angular.module('ESPlus',[])
+.controller('MainCtrl',['$scope','$http','$log',function($scope,$http,$log){
+
+    $scope.model = {
+        '0': {
+            Name: 'foo'
+        },
+        '1': {
+            Name: 'bar'
+        }
+
+    };
+
+    $scope.model = {};
+
+    $scope.createEntity1 = function() {
+
+        $http.post('/Entity1',
+        {
+            WhichEntity: 18,
+            Name: "Uncle Fester",
+            _metadata: { }
+        })
+        .then(function(data){
+            $log.log('http success: ' + JSON.stringify(data));
+        })
+        .catch(function(err){
+            $log.log('http error: ' + JSON.stringify(err));
+        });
+
+    };
+
+    $scope.updateEntity1 = function(val){
+
+        $http.put('/Entity1',val)
+        .then(function(data){
+            $log.log('http success: ' + JSON.stringify(data));
+        })
+        .catch(function(err){
+            $log.log('http error: ' + JSON.stringify(err));
+        });
+
+    };
+
+    myFirebaseRef.child("current").on("value", function(snapshot) {
+
+        runScope($scope,function(){
+            $scope.model = snapshot.val();
+        });
+
+        console.log('model update received');
+    });
+
+}])
+
+;
+
+</script>
 
 </body>
 </html>
