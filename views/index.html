@@ -1,26 +1,26 @@
 <html ng-app="ESPlus">
 <head>
     <style>
-table {
-/*    width: 100%;*/
-    width: 1000px;
-}
+        table {
+        /*    width: 100%;*/
+            width: 1000px;
+        }
 
-thead, tbody { display: block; }
+        thead, tbody { display: block; }
 
-tbody {
-/*    height: 250px;*/
-    overflow-y: auto;
-    overflow-x: hidden;
-}
+        tbody {
+        /*    height: 250px;*/
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
 
-tbody td, thead th {
-    width: 20%;  /* Optional */
-}
+        tbody td, thead th {
+            width: 20%;  /* Optional */
+        }
 
-tbody input {
-    width: 100%;
-}
+        tbody input {
+            width: 100%;
+        }
     </style>
 
     <script type="text/javascript" src="/javascripts/firebase.js"></script>
@@ -44,7 +44,7 @@ tbody input {
                 <td><input ng-model="selected.Name"/></td>
                 <td><input ng-model="selected.WhichEntity" /></td>
                 <td><button ng-click="updateEntity()">Update!</button></td>
-                <td><button ng-click=";">Add Row!</button></td>
+                <td><button ng-click="addRow()">Add Row!</button></td>
             </tr>
              <tr ng-repeat="step in selected.Steps">
                 <td><input ng-model="step.Name" /></td>
@@ -119,10 +119,15 @@ angular.module('ESPlus',[])
             {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
             {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
             {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''}
-
         ]
     };
     $scope.selectedKey = '-1';
+
+    $scope.addRow = function(){
+        if(!$scope.selected.Steps) $scope.selected.Steps = [];
+
+        $scope.selected.Steps.push({Name: 'StepName', Start: new Date(), End: new Date(), Note: 'Note'});
+    };
 
     $scope.selectEntity = function(key,val){
         $scope.selected = val;
