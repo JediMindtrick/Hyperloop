@@ -1,5 +1,7 @@
 <html ng-app="ESPlus">
 <head>
+	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
+
     <style>
         table {
         /*    width: 100%;*/
@@ -23,6 +25,7 @@
         }
     </style>
 
+    <script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
     <script type="text/javascript" src="/javascripts/firebase.js"></script>
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
@@ -49,6 +52,7 @@
              <tr ng-repeat="step in selected.Steps">
                 <td><input ng-model="step.Name" /></td>
                 <td><input type="date" ng-model="step.Start" /></td>
+                <td>{{step.Start}}</td>
                 <td><input type="date" ng-model="step.End" /></td>
                 <td><input ng-model="step.Note" /></td>
             </tr>
@@ -58,8 +62,8 @@
             <tr ng-repeat="(key,val) in model" ng-if="key != '_metadata'">
                 <td>{{key}}</td>
                 <td>{{val.Id}}</td>
-                <td><input ng-model="val.Name" /></td>
-                <td><input ng-model="val.WhichEntity" /></td>
+                <td><input ng-disabled="true" ng-model="val.Name" /></td>
+                <td><input ng-disabled="true" ng-model="val.WhichEntity" /></td>
                 <td><button ng-click="selectEntity(key,val)">Edit</button></td>
             </tr>
         </tbody>
@@ -166,7 +170,19 @@ angular.module('ESPlus',[])
     myFirebaseRef.child("current").on("value", function(snapshot) {
 
         runScope($scope,function(){
-            $scope.model = snapshot.val();
+            var _model = snapshot.val();
+
+            for(var ent in _model){
+                if(_model[ent].Steps && _model[ent].Steps.length){
+                    for(var i = 0, l = _model[ent].Steps.length; i < l; i++){
+                        var curr = _model[ent].Steps[i];
+                        curr.Start = new Date(curr.Start);
+                        curr.End = new Date(curr.End);
+                    }
+                }
+            }
+
+            $scope.model = _model;
         });
 
         console.log('model update received');

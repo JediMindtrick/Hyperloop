@@ -2,6 +2,9 @@
 /**
  * Module dependencies.
  */
+
+console.log(require('./store.js').foo);
+
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -75,7 +78,7 @@ var pushToStream = function(msg){
     };
 
     var options = {
-      host: '192.168.164.143',
+      host: '192.168.164.147',
       port: 2113,
       path: '/streams/Sandbox-Entity1-f',
       method: 'POST',
@@ -134,6 +137,13 @@ app.put('/Entity1', function(req, res){
   pushToStream(_msg);
 
   res.send(_entity.id);
+});
+
+var getFromStore = require('./store.js').get;
+app.get('/Store/*',function(req, res){
+
+    var found = getFromStore(req.url);
+    res.send(JSON.stringify(found));
 });
 
 http.createServer(app).listen(app.get('port'), function(){
