@@ -26,7 +26,7 @@
     </style>
 
 	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
-    <script type="text/javascript" src="/javascripts/firebase.js"></script>
+<!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui-router.min.js"></script>
@@ -36,6 +36,7 @@
 <div style="margin-left:50px;">
     <h1>ES+Firebase Web Client</h1>
 
+	<button ng-click="setLocalFb()">Local fb!</button>
     <button ng-click="createEntity()">Create!</button>
 
     <table style="height: 30px;">
@@ -85,7 +86,12 @@
 		console.log(data);
 	});
 
-    myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
+	socket.on('value',function(data){
+		console.log('received a value');
+		console.log(data);
+	});
+
+//    myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
 
     function runScope(angularScope,callback){
 
@@ -144,6 +150,21 @@ angular.module('ESPlus',[])
         $scope.selectedKey = key;
     };
 
+	$scope.setLocalFb = function(){
+		$http.post('/Store/foo/bar',
+		{
+			WhichEntity: 18,
+			Name: "Uncle Fester",
+			_metadata: { }
+		})
+		.then(function(data){
+			$log.log('http success: ' + JSON.stringify(data));
+		})
+		.catch(function(err){
+			$log.log('http error: ' + JSON.stringify(err));
+		});
+	};
+
     $scope.createEntity = function() {
 
         $http.post('/Entity1',
@@ -173,6 +194,7 @@ angular.module('ESPlus',[])
 
     };
 
+/*
     myFirebaseRef.child("current").on("value", function(snapshot) {
 
         runScope($scope,function(){
@@ -193,6 +215,7 @@ angular.module('ESPlus',[])
 
         console.log('model update received');
     });
+	*/
 
 }])
 

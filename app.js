@@ -1,4 +1,3 @@
-
 /**
  * Module dependencies.
  */
@@ -7,6 +6,7 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var uuid = require('node-uuid');
+var store = require('./store.js');
 
 var app = express();
 
@@ -29,9 +29,6 @@ if ('development' == app.get('env')) {
 app.get('/', function(req, res) {
     res.render('index.html');
   });
-
-
-
 
 function createEntity(_entity){
     var __id = uuid.v4();
@@ -109,7 +106,6 @@ var pushToStream = function(msg){
 
 };
 
-
 app.post('/Entity1', function(req, res){
   console.log('create: ' +  req.body);
 
@@ -136,30 +132,55 @@ app.put('/Entity1', function(req, res){
   res.send(_entity.id);
 });
 
-var getFromStore = require('./store.js').get;
-app.get('/Store/*',function(req, res){
-
-    var found = getFromStore(req.url);
-    res.send(JSON.stringify(found));
-});
-
 var server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
 
+
+
+
+
+
+//ALL BELOW IS FOR SETTING UP SOCKET.IO AND OBSERVABLES
 var io = require('socket.io')(server);
 
+store.setChannel(io);
+
 io.on('connection',function(socket){
-    console.log('someone connected');
+    //console.log('someone connected');
+});
+
+app.get('/Store/*',function(req, res){
+
+    var found = store.get(req.url);
+    res.send(JSON.stringify(found));
+});
+
+app.post('/Store/*',function(req, res){
+
+    var result = store.set(req.url, req.body);
+    res.send(JSON.stringify(result));
 });
 
 var nsp = io.of('/foo');
+var count = 0;
 nsp.on('connection', function(socket){
     console.log('someone connected to /foo');
 
     //emit to individual connection
     //socket.emit('hi','there');
-
+/*
+    setInterval(function(){
+        count++;
+        store.set('foo',
+        {
+            lastUpdate: new Date(),
+            count: count
+        });
+    },2000);
+    */
+    //emit to individual connection
+    //socket.emit('hi','there');
     //emit to everyone in the "room", or listening on the node in our case
-    nsp.emit('hi', 'everyone!');
+    //nsp.emit('hi', 'everyone!');
 });
