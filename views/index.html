@@ -25,7 +25,7 @@
         }
     </style>
 
-    <script type="text/javascript" src="/javascripts/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
     <script type="text/javascript" src="/javascripts/firebase.js"></script>
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
@@ -78,6 +78,12 @@
 
 
 <script type="text/javascript">
+
+	var socket = io('/foo');
+
+	socket.on('hi',function(data){
+		console.log(data);
+	});
 
     myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
 

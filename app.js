@@ -3,13 +3,10 @@
  * Module dependencies.
  */
 
-console.log(require('./store.js').foo);
-
 var express = require('express');
 var http = require('http');
 var path = require('path');
 var uuid = require('node-uuid');
-
 
 var app = express();
 
@@ -146,6 +143,23 @@ app.get('/Store/*',function(req, res){
     res.send(JSON.stringify(found));
 });
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+var server = http.createServer(app).listen(app.get('port'), function(){
+    console.log('Express server listening on port ' + app.get('port'));
+});
+
+var io = require('socket.io')(server);
+
+io.on('connection',function(socket){
+    console.log('someone connected');
+});
+
+var nsp = io.of('/foo');
+nsp.on('connection', function(socket){
+    console.log('someone connected to /foo');
+
+    //emit to individual connection
+    //socket.emit('hi','there');
+
+    //emit to everyone in the "room", or listening on the node in our case
+    nsp.emit('hi', 'everyone!');
 });
