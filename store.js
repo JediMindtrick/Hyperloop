@@ -89,3 +89,5 @@ exports.set = function(path, val){
 exports.setChannel = function(_channel){
     channel = _channel;
 };
+
+exports.setupObservable = setupObservable;

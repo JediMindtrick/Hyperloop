@@ -146,10 +146,6 @@ var io = require('socket.io')(server);
 
 store.setChannel(io);
 
-io.on('connection',function(socket){
-    //console.log('someone connected');
-});
-
 app.get('/Store/*',function(req, res){
 
     var found = store.get(req.url);
@@ -162,25 +158,11 @@ app.post('/Store/*',function(req, res){
     res.send(JSON.stringify(result));
 });
 
-var nsp = io.of('/foo');
-var count = 0;
-nsp.on('connection', function(socket){
-    console.log('someone connected to /foo');
-
-    //emit to individual connection
-    //socket.emit('hi','there');
-/*
-    setInterval(function(){
-        count++;
-        store.set('foo',
-        {
-            lastUpdate: new Date(),
-            count: count
-        });
-    },2000);
-    */
-    //emit to individual connection
-    //socket.emit('hi','there');
-    //emit to everyone in the "room", or listening on the node in our case
-    //nsp.emit('hi', 'everyone!');
+//subscribe danceroo
+io.on('connection',function(socket){
+    socket.on('subscribe',function(path){
+        console.log('subscribe to ' + path);
+        store.setupObservable(path);
+        socket.emit('subscribed',path);
+    });
 });
