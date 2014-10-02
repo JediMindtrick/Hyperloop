@@ -83,6 +83,8 @@ exports.set = function(path, val){
     //notify all observers
     notifyElement(_stripped,val,'');
 
+    console.log('store.js returning from set: ' + val);
+
     return toReturn;
 };
 

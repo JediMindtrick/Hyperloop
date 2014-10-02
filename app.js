@@ -158,6 +158,12 @@ app.post('/Store/*',function(req, res){
     res.send(JSON.stringify(result));
 });
 
+app.put('/Store/*',function(req, res){
+
+    var result = store.set(req.url, req.body);
+    res.send(JSON.stringify(result));
+});
+
 //subscribe danceroo
 io.on('connection',function(socket){
     socket.on('subscribe',function(path){
