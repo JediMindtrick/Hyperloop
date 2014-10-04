@@ -15,7 +15,7 @@ app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.favicon());
 app.use(express.logger('dev'));
-app.use(express.json());
+app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -153,14 +153,28 @@ app.get('/Store/*',function(req, res){
 });
 
 app.post('/Store/*',function(req, res){
+    var val = null;
 
-    var result = store.set(req.url, req.body);
+//    if(req.body._rawValue !== undefined){
+        val = req.body._rawValue;
+//    }else{
+//        val = req.body;
+//    }
+
+    var result = store.set(req.url, val);
     res.send(JSON.stringify(result));
 });
 
 app.put('/Store/*',function(req, res){
+    var val = null;
 
-    var result = store.set(req.url, req.body);
+//    if(req.body._rawValue !== undefined){
+        val = req.body._rawValue;
+//    }else{
+//        val = req.body;
+//    }
+
+    var result = store.set(req.url, val);
     res.send(JSON.stringify(result));
 });
 
