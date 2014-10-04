@@ -1,7 +1,7 @@
 var http = require('http');
 var uuid = require('node-uuid');
 
-var streamHost = '192.168.164.150';
+var streamHost = '192.168.56.100';
 var streamPort = 2113;
 var streamPath = '/streams/Sandbox-Entity1-a';
 var streamAuth = 'admin:changeit';

@@ -25,7 +25,8 @@
         }
     </style>
 
-	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
+	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>
+<!--	<script type="text/javascript" src="/javascripts/socket.io.js"></script>-->
 <!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
@@ -83,11 +84,12 @@
 	var onValue = function(data){};
 
 	var getRef = function(path){
-		var root = io();
+		var root = io('http://192.168.56.100:3000');
+//		var root = io();
 
 		root.on('subscribed',function(path){
 			console.log('server ack ' + path);
-			var socket = io(path);
+			var socket = io('http://192.168.56.100:3000' + path);
 
 			socket.on('value',function(data){
 				console.log('received a value');
@@ -98,6 +100,7 @@
 
 		root.on('connect',function(){
 			console.log('subscribing to /TestOrg');
+//			root.emit('subscribe','/TestOrg/current');
 			root.emit('subscribe','/TestOrg/current');
 		});
 	};
