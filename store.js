@@ -72,26 +72,6 @@ var setElement = function(pathArr, val, obj, builtPath){
     }
 };
 
-var notifyElement = function(pathArr, val, builtPath){
-
-    if(observers[builtPath] != undefined){
-        console.log('notifying observers of ' + builtPath);
-        console.log('giving them a value ' + val);
-        observers[builtPath].emit('value',val);
-    }
-
-    if(pathArr.length == 0) {
-        return;
-    }
-
-    var _newPath = builtPath + '/' + pathArr[0];
-
-    var _newArr = pathArr.length == 1 ? [] : pathArr.slice(1);
-
-    //keep going down the path
-    notifyElement(_newArr,val,_newPath);
-};
-
 exports.get = function(path){
     var _stripped = path.toString().replace(/^\/Store\//,'').split('\/');
 
@@ -105,9 +85,6 @@ exports.set = function(path, val){
     var _stripped = path.toString().replace(/^\/Store\//,'').split('\/');
 
     var toReturn = setElement(_stripped,val,store,'');
-
-    //notify all observers
-    //notifyElement(_stripped,val,'');
 
     console.log('store.js returning from set: ' + val);
 
