@@ -80,6 +80,8 @@
 
 <script type="text/javascript">
 
+	var onValue = function(data){};
+
 	var getRef = function(path){
 		var root = io();
 
@@ -90,18 +92,27 @@
 			socket.on('value',function(data){
 				console.log('received a value');
 				console.log(data);
+				onValue(data);
 			});
 		});
 
 		root.on('connect',function(){
-			console.log('subscribing to /foo/bar');
-			root.emit('subscribe','/foo/bar');
+			console.log('subscribing to /TestOrg');
+			root.emit('subscribe','/TestOrg/current');
 		});
 	};
 
-	getRef();
 
-//    myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com/Org1/Aggregates/Entity1/");
+/*
+	var getRef = function(path){
+		myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com" + path);
+
+		myFirebaseRef.child("current").on("value", function(snapshot) {
+			onValue(snapshot.val());
+		});
+	};
+
+*/
 
     function runScope(angularScope,callback){
 
@@ -161,7 +172,7 @@ angular.module('ESPlus',[])
     };
 
 	$scope.setLocalFb = function(){
-		$http.post('/Store/foo/bar',
+		$http.post('/Store/TestOrg/current',
 		{
 			WhichEntity: 18,
 			Name: "Uncle Fester",
@@ -204,28 +215,28 @@ angular.module('ESPlus',[])
 
     };
 
-/*
-    myFirebaseRef.child("current").on("value", function(snapshot) {
+	onValue = function(snapshot){
 
-        runScope($scope,function(){
-            var _model = snapshot.val();
+		runScope($scope,function(){
+			var _model = snapshot;
 
-            for(var ent in _model){
-                if(_model[ent].Steps && _model[ent].Steps.length){
-                    for(var i = 0, l = _model[ent].Steps.length; i < l; i++){
-                        var curr = _model[ent].Steps[i];
-                        curr.Start = new Date(curr.Start);
-                        curr.End = new Date(curr.End);
-                    }
-                }
-            }
+			for(var ent in _model){
+				if(_model[ent].Steps && _model[ent].Steps.length){
+					for(var i = 0, l = _model[ent].Steps.length; i < l; i++){
+						var curr = _model[ent].Steps[i];
+						curr.Start = new Date(curr.Start);
+						curr.End = new Date(curr.End);
+					}
+				}
+			}
 
-            $scope.model = _model;
-        });
+			$scope.model = _model;
+		});
 
-        console.log('model update received');
-    });
-	*/
+		console.log('model update received');
+	};
+
+	getRef();
 
 }])
 
