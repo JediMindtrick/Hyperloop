@@ -48,6 +48,10 @@ var setElement = function(pathArr, val, obj, builtPath){
     if(pathArr.length == 1){
         obj[pathArr[0]] = val;
 
+        console.log('notifying observers of ' + _newPath);
+        console.log('giving them a value ' + val);
+        observers[_newPath].emit('value',val);
+
         return val;
     }
 
@@ -59,6 +63,13 @@ var setElement = function(pathArr, val, obj, builtPath){
     //keep going down the path
     var _nextNode = obj[pathArr[0]];
     setElement(pathArr.slice(1),val,_nextNode,_newPath);
+
+    //notify after update
+    if(observers[_newPath] != undefined){
+        console.log('notifying observers of ' + _newPath);
+        console.log('giving them a value ' + obj[pathArr[0]]);
+        observers[_newPath].emit('value',obj[pathArr[0]]);
+    }
 };
 
 var notifyElement = function(pathArr, val, builtPath){
@@ -96,7 +107,7 @@ exports.set = function(path, val){
     var toReturn = setElement(_stripped,val,store,'');
 
     //notify all observers
-    notifyElement(_stripped,val,'');
+    //notifyElement(_stripped,val,'');
 
     console.log('store.js returning from set: ' + val);
 
