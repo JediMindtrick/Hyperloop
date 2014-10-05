@@ -34,14 +34,14 @@ app.get('/', function(req, res) {
 
 app.post('/Entity1', function(req, res){
 
-    console.log('create: ' +  req.body);
+//    console.log('create: ' +  req.body);
     var _id = stream.createEntity(req.body);
     res.send(_id);
 });
 
 app.put('/Entity1', function(req, res){
 
-    console.log('update: ' + JSON.stringify(req.body));
+//    console.log('update: ' + JSON.stringify(req.body));
     var _id = stream.updateEntity(req.body);
     res.send(_id);
 });

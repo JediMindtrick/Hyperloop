@@ -4,14 +4,12 @@
 
     <style>
         table {
-        /*    width: 100%;*/
             width: 1000px;
         }
 
         thead, tbody { display: block; }
 
         tbody {
-        /*    height: 250px;*/
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -25,7 +23,8 @@
         }
     </style>
 
-	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>
+	<script type="text/javascript" src="http://10.0.0.42:3000/javascripts/socket.io.js"></script>
+<!--	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>-->
 <!--	<script type="text/javascript" src="/javascripts/socket.io.js"></script>-->
 <!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
@@ -36,6 +35,10 @@
 
 <div style="margin-left:50px;">
     <h1>ES+Firebase Web Client</h1>
+	<div>
+		<label>Count Received: {{countReceived}}</label> <br />
+		<label>Single Perf Limit: <input ng-model="singlePerfLimit" /></label>
+	</div><br />
 
 	<button ng-click="setLocalFb()">Local fb!</button>
     <button ng-click="createEntity()">Create!</button>
@@ -50,6 +53,7 @@
                 <td><input ng-model="selected.WhichEntity" /></td>
                 <td><button ng-click="updateEntity()">Update!</button></td>
                 <td><button ng-click="addRow()">Add Row!</button></td>
+				<td><button ng-click="runSinglePerf()">Perf This!</button></td>
             </tr>
              <tr ng-repeat="step in selected.Steps">
                 <td><input ng-model="step.Name" /></td>
@@ -80,27 +84,25 @@
 
 
 <script type="text/javascript">
+	var _base = 'http://10.0.0.42:3000'; //'http://192.168.56.100:3000';// '' for localhost
 
 	var onValue = function(data){};
 
 	var getRef = function(path){
-		var root = io('http://192.168.56.100:3000');
-//		var root = io();
+		var root = io(_base);
 
 		root.on('subscribed',function(path){
 			console.log('server ack ' + path);
-			var socket = io('http://192.168.56.100:3000' + path);
+			var socket = io(_base + path);
 
 			socket.on('value',function(data){
-				console.log('received a value');
-				console.log(data);
+//				console.log('value received');
 				onValue(data);
 			});
 		});
 
 		root.on('connect',function(){
 			console.log('subscribing to /TestOrg');
-//			root.emit('subscribe','/TestOrg/current');
 			root.emit('subscribe','/TestOrg/current');
 		});
 	};
@@ -139,29 +141,9 @@
 angular.module('ESPlus',[])
 .controller('MainCtrl',['$scope','$http','$log',function($scope,$http,$log){
 
-    $scope.model = {
-        '0': {
-            Name: 'foo'
-        },
-        '1': {
-            Name: 'bar'
-        }
-
-    };
-
     $scope.model = {};
-    $scope.selected = {
-        Name: 'fizz',
-        WhichEntity: 5,
-        Id: 'buzz',
-        Steps: [
-            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
-            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
-            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''},
-            {Name: 'Step1', Start: new Date(), End: new Date(), Note: ''}
-        ]
-    };
-    $scope.selectedKey = '-1';
+    $scope.selected = { };
+    $scope.selectedKey = '';
 
     $scope.addRow = function(){
         if(!$scope.selected.Steps) $scope.selected.Steps = [];
@@ -218,7 +200,7 @@ angular.module('ESPlus',[])
 
     };
 
-	onValue = function(snapshot){
+	var modelUpdate = function(snapshot){
 
 		runScope($scope,function(){
 			var _model = snapshot;
@@ -235,11 +217,72 @@ angular.module('ESPlus',[])
 
 			$scope.model = _model;
 		});
-
-		console.log('model update received');
 	};
 
+	onValue = modelUpdate;
+
 	getRef();
+
+
+	//PERF OVER A SINGLE ENTITY, SINGLE STREAM
+	$scope.countReceived = 0;
+	$scope.singlePerfLimit = 1000;
+	var perfMax = $scope.singlePerfLimit;
+	var singlePerfStart = new Date();
+	var perfReceived = 0;
+
+	var checkEnd = function(){
+		if(perfReceived >= perfMax){
+			var _now = new Date();
+			console.log('end perf ' + _now);
+			onValue = modelUpdate;
+
+			var t1 = _now;
+			var t2 = singlePerfStart;
+			var dif = t1.getTime() - t2.getTime()
+
+			var Seconds_from_T1_to_T2 = dif / 1000;
+			var Seconds_Between_Dates = Math.abs(Seconds_from_T1_to_T2);
+			console.log('It took ' + Seconds_from_T1_to_T2 + ' seconds to process ' + $scope.singlePerfLimit + ' records');
+			console.log('that is ' + ($scope.singlePerfLimit / Seconds_from_T1_to_T2) + ' records/sec');
+
+		}
+	};
+
+	var onSinglePerf = function(snapshot){
+		perfReceived++;
+
+		if(perfReceived % 100 === 0){
+			runScope($scope,function(){
+				$scope.countReceived = perfReceived;
+			});
+		}
+
+		checkEnd();
+	};
+
+	$scope.runSinglePerf = function(){
+		perfReceived = 0;
+		perfMax = $scope.singlePerfLimit;
+		onValue = onSinglePerf;
+		console.log('perfMax ' + perfMax)
+
+
+		singlePerfStart = new Date();
+		console.log('start perf ' + singlePerfStart);
+
+		for(var i = 1, l = $scope.singlePerfLimit; i <= l; i++){
+			var errors = 0;
+			$scope.selected.WhichEntity = i;
+			$http.put('/Entity1',$scope.selected)
+			.catch(function(err){
+				errors++;
+				$log.log('perf POST error count: ' + errors);
+				perfMax--;
+				checkEnd();
+			});
+		}
+	};
 
 }])
 

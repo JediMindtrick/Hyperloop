@@ -1,7 +1,7 @@
 var http = require('http');
 var uuid = require('node-uuid');
 
-var streamHost = '192.168.56.100';
+var streamHost = '10.0.0.42'; //'192.168.56.100';
 var streamPort = 2113;
 var streamPath = '/streams/Sandbox-Entity1-a';
 var streamAuth = 'admin:changeit';
@@ -64,17 +64,17 @@ var pushToStream = function(msg){
       var responseString = '';
 
       res.on('data',function(){
-          console.log('data');
+//          console.log('data');
       });
 
       res.on('end', function(data) {
-          console.log('entity create pushed onto stream');
+//          console.log('entity create pushed onto stream');
       });
     });
 
     req.on('error', function(e) {
       // TODO: handle error.
-      console.log('error');
+//      console.log('error');
     });
 
     req.write(serializedMsg);
