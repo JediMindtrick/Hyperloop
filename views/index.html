@@ -23,8 +23,8 @@
         }
     </style>
 
-	<script type="text/javascript" src="http://10.0.0.42:3000/javascripts/socket.io.js"></script>
-<!--	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>-->
+<!--	<script type="text/javascript" src="http://10.0.0.42:3000/javascripts/socket.io.js"></script>-->
+	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>
 <!--	<script type="text/javascript" src="/javascripts/socket.io.js"></script>-->
 <!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
@@ -42,6 +42,7 @@
 
 	<button ng-click="setLocalFb()">Local fb!</button>
     <button ng-click="createEntity()">Create!</button>
+	<button ng-click="createFast()">Create Fast!</button>
 
     <table style="height: 30px;">
 
@@ -84,7 +85,8 @@
 
 
 <script type="text/javascript">
-	var _base = 'http://10.0.0.42:3000'; //'http://192.168.56.100:3000';// '' for localhost
+//	var _base = 'http://10.0.0.42:3000';
+	var _base = 'http://192.168.56.100:3000';// '' for localhost
 
 	var onValue = function(data){};
 
@@ -96,7 +98,6 @@
 			var socket = io(_base + path);
 
 			socket.on('value',function(data){
-//				console.log('value received');
 				onValue(data);
 			});
 		});
@@ -116,7 +117,6 @@
 			onValue(snapshot.val());
 		});
 	};
-
 */
 
     function runScope(angularScope,callback){
@@ -187,6 +187,23 @@ angular.module('ESPlus',[])
         });
 
     };
+
+	$scope.createFast = function() {
+
+		$http.post('/Fastlane/Entity1',
+		{
+			WhichEntity: 18,
+			Name: "Uncle Fester",
+			_metadata: { }
+		})
+		.then(function(data){
+			$log.log('http success: ' + JSON.stringify(data));
+		})
+		.catch(function(err){
+			$log.log('http error: ' + JSON.stringify(err));
+		});
+
+	};
 
     $scope.updateEntity = function(){
 
@@ -274,7 +291,7 @@ angular.module('ESPlus',[])
 		for(var i = 1, l = $scope.singlePerfLimit; i <= l; i++){
 			var errors = 0;
 			$scope.selected.WhichEntity = i;
-			$http.put('/Entity1',$scope.selected)
+			$http.put('/Fastlane/Entity1',$scope.selected)
 			.catch(function(err){
 				errors++;
 				$log.log('perf POST error count: ' + errors);

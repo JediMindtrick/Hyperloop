@@ -7,6 +7,7 @@ var http = require('http');
 var path = require('path');
 var store = require('./store.js');
 var stream = require('./esStream.js');
+var fastlane = require('./fastlane.js');
 
 var app = express();
 
@@ -14,7 +15,7 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.favicon());
-app.use(express.logger('dev'));
+//app.use(express.logger('dev'));
 app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -24,7 +25,7 @@ app.engine('html', require('ejs').renderFile);
 // development only
 if ('development' == app.get('env')) {
 
-  app.use(express.errorHandler());
+//  app.use(express.errorHandler());
 }
 
 app.get('/', function(req, res) {
@@ -34,14 +35,12 @@ app.get('/', function(req, res) {
 
 app.post('/Entity1', function(req, res){
 
-//    console.log('create: ' +  req.body);
     var _id = stream.createEntity(req.body);
     res.send(_id);
 });
 
 app.put('/Entity1', function(req, res){
 
-//    console.log('update: ' + JSON.stringify(req.body));
     var _id = stream.updateEntity(req.body);
     res.send(_id);
 });
@@ -52,11 +51,10 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 
 
 
+//FASTLANE!!!
+app.post('/Fastlane/Entity1', fastlane.create);
 
-
-
-
-
+app.put('/Fastlane/Entity1', fastlane.update);
 
 
 

@@ -1,7 +1,8 @@
 var http = require('http');
 var uuid = require('node-uuid');
 
-var streamHost = '10.0.0.42'; //'192.168.56.100';
+//var streamHost = '10.0.0.42';
+var streamHost = '192.168.56.100';
 var streamPort = 2113;
 var streamPath = '/streams/Sandbox-Entity1-a';
 var streamAuth = 'admin:changeit';
@@ -39,7 +40,7 @@ function updateEntity(_entity){
     };
 }
 
-var pushToStream = function(msg){
+var pushToStream = function(msg, callback){
 
     var serializedMsg = JSON.stringify(msg);
     var headers = {
@@ -64,17 +65,17 @@ var pushToStream = function(msg){
       var responseString = '';
 
       res.on('data',function(){
-//          console.log('data');
       });
 
       res.on('end', function(data) {
-//          console.log('entity create pushed onto stream');
+          if(callback !== undefined){
+            callback();
+          }
       });
     });
 
     req.on('error', function(e) {
       // TODO: handle error.
-//      console.log('error');
     });
 
     req.write(serializedMsg);
@@ -82,17 +83,44 @@ var pushToStream = function(msg){
 
 };
 
-exports.createEntity = function(__entity){
+exports.createEntity = function(__entity,callback){
 
     var _entity = createEntity(__entity);
     var _msg = [_entity];
-    pushToStream(_msg);
+    var _callback = undefined;
+    if(callback !== undefined){
+        _callback = function(){
+            callback(_entity.id);
+        };
+    }
+    pushToStream(_msg,_callback);
     return _entity.id;
 };
-exports.updateEntity = function(__entity){
+
+exports.createEntity = function(__entity,callback){
+
+    var _entity = createEntity(__entity);
+    var _msg = [_entity];
+    var _callback = undefined;
+    if(callback !== undefined){
+        _callback = function(){
+            callback(_entity);
+        };
+    }
+    pushToStream(_msg,_callback);
+    return _entity.id;
+};
+
+exports.updateEntity = function(__entity,callback){
 
     var _entity = updateEntity(__entity);
     var _msg = [_entity];
-    pushToStream(_msg);
+    var _callback = undefined;
+    if(callback !== undefined){
+        _callback = function(){
+            callback(_entity);
+        };
+    }
+    pushToStream(_msg,_callback);
     return _entity.id;
 };
