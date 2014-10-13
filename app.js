@@ -54,12 +54,85 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 //FASTLANE!!!
 app.post('/Fastlane/Entity1', fastlane.create);
 
-app.put('/Fastlane/Entity1', fastlane.update);
+//app.put('/Fastlane/Entity1', fastlane.update);
+
+
+var pushToModel = function(msg,callback){
+
+    var serializedMsg = JSON.stringify({ _rawValue: msg});
+    var headers = {
+        'Content-Type': 'application/json',
+        'Content-Length': serializedMsg.length
+    };
+
+    var options = {
+        //host: '10.0.0.42',
+        host: 'localhost',
+        port: 3000,
+        path: '/Store/TestOrg/current/0',
+        method: 'PUT',
+        headers: headers
+    };
+
+    // Setup the request.  The options parameter is
+    // the object we defined above.
+    var req = http.request(options, function(res) {
+      res.setEncoding('utf-8');
+
+      var responseString = '';
+
+      res.on('data',function(){
+      });
+
+      res.on('end', function(data) {
+          if(callback !== undefined){
+            callback();
+          }
+      });
+    });
+
+    req.on('error', function(e) {
+    });
+
+    req.write(serializedMsg);
+    req.end();
+};
+
+var q = [];
+
+var levelup = require('level');
+var db = levelup('./mydb');
+var _dbCount = 0;
+
+/*
+db.get('test20000', function (err, value) {
+if (err) return console.log('Ooops!', err); // likely the key was not found
+
+// ta da!
+console.log('test20000=' + JSON.stringify(value));
+});
+*/
+
+app.put('/Fastlane/Entity1', function(req,res){
+
+    res.send('OK');
+
+    var ent = {some: 'more', complex: 'model'};
+    q.push(ent);
+    
+    _dbCount++;
+    db.put('test' + _dbCount,JSON.stringify(ent),function(){
+        pushToModel(q.shift(),function(){});    
+    });
+
+
+});
 
 
 
 //ALL BELOW IS FOR SETTING UP "LOCAL FIREBASE"
 var io = require('socket.io')(server);
+valRoom = io.of('/TestOrg/current');
 
 store.setChannel(io);
 
@@ -97,11 +170,19 @@ io.on('connection',function(socket){
         var nsp = io.of(path);
         nsp.on('connection', function(socket){
             console.log('someone connected to ' + path);
+
             var _val = store.get('/Store' + path);
             console.log('value at ' + path + ' is ' + JSON.stringify(_val));
             if(_val != null){
               socket.emit('value',_val);
             }
+            
+            /*
+            for(var i = 0, l = 8003; i < l; i++){
+                socket.emit('value',i);
+            }
+            */
+            
         });
 
         socket.emit('subscribed',path);
