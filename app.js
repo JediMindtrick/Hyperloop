@@ -8,6 +8,7 @@ var path = require('path');
 var store = require('./store.js');
 var stream = require('./esStream.js');
 var fastlane = require('./fastlane.js');
+var config = require('./config');
 
 var app = express();
 
@@ -66,9 +67,8 @@ var pushToModel = function(msg,callback){
     };
 
     var options = {
-        //host: '10.0.0.42',
-        host: 'localhost',
-        port: 3000,
+        host: config.realTimeStoreHost,
+        port: config.realTimeStorePort,
         path: '/Store/TestOrg/current/0',
         method: 'PUT',
         headers: headers
@@ -101,15 +101,14 @@ var pushToModel = function(msg,callback){
 var q = [];
 
 var levelup = require('level');
-var db = levelup('./mydb');
+var db = levelup(config.levelDbLocation);
 var _dbCount = 0;
 
-/*
+/*Example of key retrieval
 db.get('test20000', function (err, value) {
-if (err) return console.log('Ooops!', err); // likely the key was not found
-
-// ta da!
-console.log('test20000=' + JSON.stringify(value));
+    if (err) return console.log('Ooops!', err); // likely the key was not found
+    // ta da!
+    console.log('test20000=' + JSON.stringify(value));
 });
 */
 
@@ -117,17 +116,19 @@ app.put('/Fastlane/Entity1', function(req,res){
 
     res.send('OK');
 
-    var ent = {some: 'more', complex: 'model'};
-    q.push(ent);
-    
-    _dbCount++;
-    db.put('test' + _dbCount,JSON.stringify(ent),function(){
-        pushToModel(q.shift(),function(){});    
-    });
+    if(!config.perfServerSocketsOnly){
 
+        var ent = {some: 'more', complex: 'model'};
+        q.push(ent);
+        
+        _dbCount++;
+        db.put('test' + _dbCount,JSON.stringify(ent),function(){
+            pushToModel(q.shift(),function(){});    
+        });
+
+    }
 
 });
-
 
 
 //ALL BELOW IS FOR SETTING UP "LOCAL FIREBASE"
@@ -177,11 +178,12 @@ io.on('connection',function(socket){
               socket.emit('value',_val);
             }
             
-            /*
-            for(var i = 0, l = 8003; i < l; i++){
-                socket.emit('value',i);
+            if(config.perfServerSocketsOnly){
+                for(var i = 0, l = 8003; i < l; i++){
+                    socket.emit('value',i);
+                }
             }
-            */
+
             
         });
 

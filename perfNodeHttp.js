@@ -1,4 +1,5 @@
 var http = require('http');
+var config = require('./config.js');
 
 var singlePerfLimit = 4000;
 var maxPerf = singlePerfLimit;
@@ -34,6 +35,12 @@ var onSinglePerf = function(snapshot){
     checkEnd();
 };
 
+var _onHttpEnd = (
+    config.perfSendOnly ? 
+    function(){ onSinglePerf(); } :
+    function(){ } 
+    );
+
 var send = function(){
 
     var serializedMsg = JSON.stringify([]);
@@ -43,8 +50,8 @@ var send = function(){
     };
 
     var options = {
-        host: '10.0.0.42', //'localhost',
-        port: 3000,
+        host: config.webServerHost,
+        port: config.webServerPort,
         path: '/Fastlane/Entity1',
         method: 'PUT',
         headers: headers
@@ -60,11 +67,7 @@ var send = function(){
         res.on('data',function(){
         });
 
-        res.on('end', function(data) {
-
-//        onSinglePerf(null);
-
-      });
+        res.on('end',_onHttpEnd);
     });
 
     req.on('error', function(e) {
@@ -96,11 +99,8 @@ var runSinglePerf = function(){
 
 };
 
-//runSinglePerf();
-
-
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
-var _base = 'http://10.0.0.42:3000'; //'http://192.168.56.100:3000';// '' for localhost
+var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort
 
 var onValue = function(data){};
 var socket = null;
@@ -112,9 +112,12 @@ var getRef = function(path){
         console.log('server ack ' + path);
         socket = io(_base + path);
 
-        socket.on('value',function(data){
-            onSinglePerf(null);
-        });
+        if(config.perfRoundtrip){
+            console.log('perfing round trip');
+            socket.on('value',function(data){
+                onSinglePerf();
+            });    
+        }        
 
         socket.on('connect',function(){
 
