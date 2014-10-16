@@ -86,6 +86,13 @@ var levelup = require('level');
 var db = levelup(config.levelDbLocation);
 var _dbCount = 0;
 
+app.get('/Trigger',function(req,res){
+    res.send('OK');
+    for(var i = 0, l = 10100; i < l; i++){
+        pushToModel({some: 'more', complex: 'model'});
+    }
+});
+
 app.put('/Fastlane/Entity1', function(req,res){
 
     if(!config.perfServerSocketsOnly){
