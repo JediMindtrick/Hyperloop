@@ -62,7 +62,6 @@ io.on('connection',function(socket){
 
     //WRITER EVENTS
     socket.on('update',function(val){
-        console.log('received an update');
         store.set(val.path, val.data);
     });
 
