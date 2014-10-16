@@ -1,5 +1,3 @@
-//var store = {};
-
 var store = { "TestOrg": {"_metadata":{"version":1,"orgName":"TestOrg","entityName":"Entity1",
 "cSharpType":"Entities.Entity1","createdDate":"2014-10-04T10:58:24.0442344Z","snapshotFrequency":100},
 "current":{"1":
@@ -53,8 +51,6 @@ var setElement = function(pathArr, val, obj, builtPath){
     if(pathArr.length == 1){
         obj[pathArr[0]] = val;
 
-//        console.log('notifying observers of ' + _newPath);
-//        console.log('giving them a value ' + val);
         observers[_newPath].emit('value',val);
 
         return val;
@@ -71,8 +67,6 @@ var setElement = function(pathArr, val, obj, builtPath){
 
     //notify after update
     if(observers[_newPath] != undefined){
-//        console.log('notifying observers of ' + _newPath);
-//        console.log('giving them a value ' + obj[pathArr[0]]);
         observers[_newPath].emit('value',obj[pathArr[0]]);
     }
 };
@@ -84,14 +78,10 @@ exports.get = function(path){
 };
 
 exports.set = function(path, val){
-//    console.log('setting ' + JSON.stringify(val));
-//    console.log('to ' + path);
 
     var _stripped = path.toString().replace(/^\/Store\//,'').split('\/');
 
     var toReturn = setElement(_stripped,val,store,'');
-
-//    console.log('store.js returning from set: ' + val);
 
     return toReturn;
 };

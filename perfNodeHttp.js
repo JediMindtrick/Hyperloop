@@ -1,7 +1,7 @@
 var http = require('http');
 var config = require('./config.js');
 
-var singlePerfLimit = 10000;
+var singlePerfLimit = 10;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
@@ -36,9 +36,9 @@ var onSinglePerf = function(snapshot){
 };
 
 var _onHttpEnd = (
-    config.perfSendOnly ? 
+    config.perfSendOnly ?
     function(){ onSinglePerf(); } :
-    function(){ } 
+    function(){ }
     );
 
 var send = function(){
@@ -100,7 +100,7 @@ var runSinglePerf = function(){
 };
 
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
-var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort
+var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
 
 var onValue = function(data){};
 var socket = null;
@@ -116,8 +116,8 @@ var getRef = function(path){
             console.log('perfing round trip');
             socket.on('value',function(data){
                 onSinglePerf();
-            });    
-        }        
+            });
+        }
 
         socket.on('connect',function(){
 
