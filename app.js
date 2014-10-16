@@ -49,7 +49,8 @@ app.put('/Entity1', function(req, res){
 var server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
-
+//add socket server
+var io = require('socket.io')(server);
 
 
 //FASTLANE!!!
@@ -57,8 +58,7 @@ app.post('/Fastlane/Entity1', fastlane.create);
 
 //app.put('/Fastlane/Entity1', fastlane.update);
 
-
-var pushToModel = function(msg,callback){
+var pushToModel = function(msg){
 
     var serializedMsg = JSON.stringify({ _rawValue: msg});
     var headers = {
@@ -85,10 +85,8 @@ var pushToModel = function(msg,callback){
       });
 
       res.on('end', function(data) {
-          if(callback !== undefined){
-            callback();
-          }
       });
+
     });
 
     req.on('error', function(e) {
@@ -123,7 +121,7 @@ app.put('/Fastlane/Entity1', function(req,res){
         
         _dbCount++;
         db.put('test' + _dbCount,JSON.stringify(ent),function(){
-            pushToModel(q.shift(),function(){});    
+            pushToModel(q.shift());    
         });
 
     }
@@ -132,9 +130,9 @@ app.put('/Fastlane/Entity1', function(req,res){
 
 
 //ALL BELOW IS FOR SETTING UP "LOCAL FIREBASE"
-var io = require('socket.io')(server);
 valRoom = io.of('/TestOrg/current');
 
+//this is the 'out' socket
 store.setChannel(io);
 
 app.get('/Store/*',function(req, res){
@@ -161,6 +159,8 @@ app.put('/Store/*',function(req, res){
     res.send(JSON.stringify(result));
 });
 
+var nspHash = {};
+
 //subscribe danceroo
 io.on('connection',function(socket){
     socket.on('subscribe',function(path){
@@ -168,25 +168,72 @@ io.on('connection',function(socket){
         store.setupObservable(path);
 
         //on connect we want to give caller the current state
-        var nsp = io.of(path);
-        nsp.on('connection', function(socket){
-            console.log('someone connected to ' + path);
+        if(!nspHash[path]){
 
-            var _val = store.get('/Store' + path);
-            console.log('value at ' + path + ' is ' + JSON.stringify(_val));
-            if(_val != null){
-              socket.emit('value',_val);
-            }
-            
-            if(config.perfServerSocketsOnly){
-                for(var i = 0, l = 8003; i < l; i++){
-                    socket.emit('value',i);
+            var nsp = io.of(path);
+
+            nspHash[path] = nsp;
+
+            nsp.on('connection', function(socket){
+                console.log('someone connected to ' + path);
+
+                var _val = store.get('/Store' + path);
+                console.log('value at ' + path + ' is ' + JSON.stringify(_val));
+                if(_val != null){
+                  socket.emit('value',_val);
                 }
-            }
+                
+                if(config.perfServerSocketsOnly){
+                    for(var i = 0, l = 8003; i < l; i++){
+                        socket.emit('value',i);
+                    }
+                }
+                
+                socket.on('update',function(val){
+                    //console.log('received update over socket');
+                    var result = store.set('/Store' + path, val);                        
+                });
 
-            
-        });
+            });
+
+        }
 
         socket.emit('subscribed',path);
     });
 });
+
+
+if(config.connectToStoreViaSockets){
+
+    var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
+    var ioClient = require('./node_modules/socket.io/node_modules/socket.io-client');
+    var modelSocket = null;
+
+    var getRef = function(path){
+
+        console.log('connecting to storeOut at ' + _base);
+
+        var storeOut = ioClient(_base);
+
+        storeOut.on('subscribed',function(path){
+            console.log('server ack ' + path);
+            modelSocket = ioClient(_base + path);
+
+            modelSocket.on('connect',function(){
+                console.log('connected to /TestOrg/current');
+                pushToModel = function(msg){
+                    modelSocket.emit('update',msg);
+                };
+            });
+        });
+
+        storeOut.on('connect',function(){
+            console.log('subscribing to /TestOrg');
+            storeOut.emit('subscribe','/TestOrg/current');
+        });
+
+    };
+
+    getRef();
+
+}

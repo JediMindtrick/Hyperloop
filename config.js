@@ -13,3 +13,4 @@ exports.perfSendOnly = false;
 
 //server
 exports.perfServerSocketsOnly = false;
+exports.connectToStoreViaSockets = true;

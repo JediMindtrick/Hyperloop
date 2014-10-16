@@ -1,7 +1,7 @@
 var http = require('http');
 var config = require('./config.js');
 
-var singlePerfLimit = 4000;
+var singlePerfLimit = 10000;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
