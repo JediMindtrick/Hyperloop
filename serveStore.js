@@ -93,3 +93,16 @@ io.on('connection',function(socket){
         socket.emit('subscribed',path);
     });
 });
+
+
+var zmq = require('zmq')
+  , sock = zmq.socket('pull');
+
+sock.connect('tcp://127.0.0.1:5000');
+console.log('Worker connected to port 5000');
+
+sock.on('message', function(msg){
+
+    var val = JSON.parse(msg);
+    store.set(val.path, val.data);
+});

@@ -86,6 +86,13 @@ var levelup = require('level');
 var db = levelup(config.levelDbLocation);
 var _dbCount = 0;
 
+app.get('/Trigger',function(req,res){
+    res.send('OK');
+    for(var i = 0, l = 10100; i < l; i++){
+        pushToModel({some: 'more', complex: 'model'});
+    }
+});
+
 app.put('/Fastlane/Entity1', function(req,res){
 
     if(!config.perfServerSocketsOnly){
@@ -130,3 +137,13 @@ if(config.connectToStoreViaSockets){
     getRef();
 
 }
+
+
+var zmq = require('zmq')
+  , sock = zmq.socket('push');
+var zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
+sock.bindSync(zmqStore);
+console.log('Producer bound to port 5000');
+pushToModel = function(msg){
+    sock.send(JSON.stringify({path:'/Store/TestOrg/current/0',data: msg}));
+};
