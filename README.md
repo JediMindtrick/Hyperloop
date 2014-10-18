@@ -5,7 +5,7 @@ Web application for Event Sourcing + Firebase expirement
 
 
 Here's how you install zeromq, before doing npm install zmq:
-
+```
 wget http://download.zeromq.org/zeromq-4.0.5.tar.gz
 tar -xvzf zeromq-4.0.5.tar.gz
 mv zeromq-4.0.5.tar.gz zeromq
@@ -14,3 +14,4 @@ sudo apt-get install libtool pkg-config build-essential autoconf automake uuid-d
 ./configure
 sudo make install
 sudo ldconfig
+```
