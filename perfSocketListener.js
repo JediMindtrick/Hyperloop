@@ -1,6 +1,7 @@
 var http = require('http');
+var config = require('./config.js');
 
-var singlePerfLimit = 16000;
+var singlePerfLimit = 10000;
 var maxPerf = singlePerfLimit;
 var perfReceived = -2;
 var singlePerfStart = new Date();
@@ -40,7 +41,7 @@ var onSinglePerf = function(snapshot){
 };
 
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
-var _base = 'http://10.0.0.42:3000'; //'http://192.168.56.100:3000';// '' for localhost
+var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort; 
 
 var onValue = function(data){};
 var socket = null;
