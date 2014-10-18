@@ -98,8 +98,9 @@ io.on('connection',function(socket){
 var zmq = require('zmq')
   , sock = zmq.socket('pull');
 
-sock.connect('tcp://127.0.0.1:5000');
-console.log('Worker connected to port 5000');
+var zmqStore = 'tcp://' + config.zeromqIn + ':' + config.zeromqPort;
+sock.bindSync(zmqStore);
+console.log('store bound to ' + zmqStore);
 
 sock.on('message', function(msg){
 
