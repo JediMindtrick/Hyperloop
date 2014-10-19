@@ -109,7 +109,6 @@ var runSinglePerf = function(){
 
 };
 
-//var io = require('./node_modules/socket.io/node_modules/socket.io-client');
 var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
 
 var onValue = function(data){};
