@@ -158,8 +158,8 @@ if(config.connectToStoreViaSockets){
 var zmq = require('zmq')
   , sock = zmq.socket('push');
 var zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
-sock.bindSync(zmqStore);
-console.log('Producer bound to port 5000');
+sock.connect(zmqStore);
+console.log('bound to store at ' + zmqStore);
 pushToModel = function(msg){
     sock.send(JSON.stringify({path:'/Store/TestOrg/current/0',data: msg}));
 };
