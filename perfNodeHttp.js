@@ -1,7 +1,7 @@
 var http = require('http');
 var config = require('./config.js');
 
-var singlePerfLimit = 10;
+var singlePerfLimit = 10000;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
@@ -42,7 +42,7 @@ var _onHttpEnd = (
     );
 
 var send = function(){
-
+/*
     var serializedMsg = JSON.stringify([]);
     var headers = {
         'Content-Type': 'application/json',
@@ -81,8 +81,18 @@ var send = function(){
 
     req.write(serializedMsg);
     req.end();
+*/
+};
 
-}
+var io = require('./node_modules/socket.io/node_modules/socket.io-client');
+var webAppSocket = io('http://' + config.webServerHost + ':' + config.webServerPort);
+webAppSocket.on('connect',function(){
+    console.log('connected to web app socket');
+    send = function(){
+        webAppSocket.emit('update',JSON.stringify([]));
+    };
+});
+
 
 var runSinglePerf = function(){
     perfReceived = 0;
@@ -99,7 +109,7 @@ var runSinglePerf = function(){
 
 };
 
-var io = require('./node_modules/socket.io/node_modules/socket.io-client');
+//var io = require('./node_modules/socket.io/node_modules/socket.io-client');
 var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
 
 var onValue = function(data){};
