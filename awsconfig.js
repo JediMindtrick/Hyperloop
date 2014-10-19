@@ -1,17 +1,17 @@
 exports.levelDbLocation = './mydb';
 
 //input layer
-exports.webServerHost = 'localhost';
+exports.webServerHost = '54.69.187.161';
 exports.webServerPort = 3000;
 
 //store
-exports.realTimeStoreHost = 'localhost';
+exports.realTimeStoreHost = '172.31.25.144';
 exports.realTimeStorePort = 4000;
 
 
 exports.zeromqPort = 5000;
-exports.zeromqOut = '127.0.0.1';
-exports.zeromqIn = '127.0.0.1';
+exports.zeromqOut = '172.31.25.144';
+exports.zeromqIn = '172.31.25.144';
 
 
 
