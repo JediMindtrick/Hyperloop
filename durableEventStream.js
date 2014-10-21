@@ -58,7 +58,7 @@ var create = function(name){
 			batch.put(streamId + ':' + evt._metadata.streamOrder, JSON.stringify(evt));
 			batch.put(streamId + ':' + evt._metadata.eventId, JSON.stringify(evt));
 
-			return evt._metadata;
+			return evt;
 		});
 
 		batch.write(function(err){

@@ -1,8 +1,7 @@
 var ds = require('./durableEventStream.js')
-levelup = require('level'),
-config = require('./config.js'),
 uuid = require('node-uuid'),
-_ = require('lodash');
+_ = require('lodash'),
+ss = require('./subscribableEventStream.js');
 
 var es = null;
 
@@ -28,8 +27,8 @@ var run = function(){
 
 		_.forEach(res,function(e){
 
-			handleGet(es.get(sId + ':' + e.streamOrder))
-			handleGet(es.get(sId + ':' + e.eventId));
+			handleGet(es.get(sId + ':' + e._metadata.streamOrder))
+			handleGet(es.get(sId + ':' + e._metadata.eventId));
 		});
 
 		handleGet(es.get(sId + ':top'));
@@ -44,8 +43,19 @@ var run = function(){
 
 ds.create('test:' + uuid.v4())
 .then(function(obj){
-	es = obj;
-	run();
+
+	ss.create(obj)
+	.then(function(obj2){
+
+		es = obj2;
+		run();
+
+	})
+	.fail(function(err){
+		console.log(err);		
+	});
+
+
 })
 .fail(function(err){
 	console.log(err);
