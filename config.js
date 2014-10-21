@@ -1,4 +1,6 @@
 exports.levelDbLocation = './mydb';
+exports.levelDbContainer = './streamStore';
+
 
 //input layer
 exports.webServerHost = 'localhost';

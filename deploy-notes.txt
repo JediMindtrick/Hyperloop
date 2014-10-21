@@ -1,0 +1,16 @@
+sudo apt-get update
+sudo apt-get install git wget nodejs-legacy npm
+
+wget http://download.zeromq.org/zeromq-4.0.5.tar.gz
+tar -xvzf zeromq-4.0.5.tar.gz
+mv zeromq-4.0.5.tar.gz zeromq
+cd zeromq
+sudo apt-get install libtool pkg-config build-essential autoconf automake uuid-dev
+./configure
+sudo make install
+sudo ldconfig
+
+
+https://github.com/JediMindtrick/ESPlusWebClient.git
+
+23.102.131.65

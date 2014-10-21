@@ -25,6 +25,20 @@ app.get('/', function(req, res) {
     res.render('index.html');
 });
 
+/*
+//expose over all endpoint types (http,wsock,zmq)
+app.post('/Event',function(req,res){
+    //promise will give back an array of either {id: ''} and/or {error: ''}
+    stream.push(req)
+    .then(function(writes){
+        res.send(writes);
+    })
+    .fail(function(errors){
+        res.send(errors,400); //or whatever seems appropriate
+    })
+});
+*/
+
 app.post('/Entity1', function(req, res){
 
     var _id = stream.createEntity(req.body);
