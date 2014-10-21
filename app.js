@@ -1,14 +1,15 @@
 /**
  * Module dependencies.
  */
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var store = require('./store.js');
-var stream = require('./esStream.js');
-var config = require('./config');
+var express = require('express'),
+http = require('http'),
+path = require('path'),
+store = require('./store.js'),
+stream = require('./esStream.js'),
+ds = require('./durableEventStream.js'),
+config = require('./config');
 
-var app = express();
+app = express();
 
 // all environments
 app.set('port', process.env.PORT || config.webServerPort);
@@ -25,46 +26,59 @@ app.get('/', function(req, res) {
     res.render('index.html');
 });
 
-/*
-//expose over all endpoint types (http,wsock,zmq)
-app.post('/Event',function(req,res){
-    //promise will give back an array of either {id: ''} and/or {error: ''}
-    stream.push(req)
-    .then(function(writes){
-        res.send(writes);
-    })
-    .fail(function(errors){
-        res.send(errors,400); //or whatever seems appropriate
-    })
+var es = null;
+ds.create('AppTestStream')
+.then(function(obj){
+    es = obj;
+
+    //expose over all endpoint types (http,wsock,zmq)
+    app.post('/Event',function(req,res){
+        //promise will give back an array of either {id: ''} and/or {error: ''}
+        es.push(req.body)
+        .then(function(writes){
+            res.send(writes);
+        })
+        .fail(function(errors){
+            res.status(400)
+            .send(errors); //or whatever seems appropriate
+        })
+    });
+
+
+})
+.fail(function(err){
+    console.log('problem opening durable store!');
+    console.log(err);
+    throw 'initialization failure';
 });
-*/
+
 
 app.post('/Entity1', function(req, res){
 
-    var _id = stream.createEntity(req.body);
+     _id = stream.createEntity(req.body);
     res.send(_id);
 });
 
 app.put('/Entity1', function(req, res){
 
-    var _id = stream.updateEntity(req.body);
+     _id = stream.updateEntity(req.body);
     res.send(_id);
 });
 
-var server = http.createServer(app).listen(app.get('port'), function(){
+ server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
 
 //FASTLANE!!!
-var pushToModel = function(msg){
+ pushToModel = function(msg){
 
-    var serializedMsg = JSON.stringify({ _rawValue: msg});
-    var headers = {
+     serializedMsg = JSON.stringify({ _rawValue: msg});
+     headers = {
         'Content-Type': 'application/json',
         'Content-Length': serializedMsg.length
     };
 
-    var options = {
+     options = {
         host: config.realTimeStoreHost,
         port: config.realTimeStorePort,
         path: '/Store/TestOrg/current/0',
@@ -74,10 +88,10 @@ var pushToModel = function(msg){
 
     // Setup the request.  The options parameter is
     // the object we defined above.
-    var req = http.request(options, function(res) {
+     req = http.request(options, function(res) {
       res.setEncoding('utf-8');
 
-      var responseString = '';
+       responseString = '';
 
       res.on('data',function(){
       });
@@ -94,16 +108,16 @@ var pushToModel = function(msg){
     req.end();
 };
 
-var q = [];
+ q = [];
 
-var levelup = require('level');
-var db = levelup(config.levelDbLocation);
-var _dbCount = 0;
+ levelup = require('level');
+ db = levelup(config.levelDbLocation);
+ _dbCount = 0;
 
-var _update = function(){
+ _update = function(){
     if(!config.perfServerSocketsOnly){
 
-        var ent = {some: 'more', complex: 'model'};
+         ent = {some: 'more', complex: 'model'};
         q.push(ent);
 
         _dbCount++;
@@ -115,7 +129,7 @@ var _update = function(){
 };
 
 //HERE BE WEBSOCKETS!
-var io = require('socket.io')(server);
+ io = require('socket.io')(server);
 io.on('connection',function(socket){
 
     console.log('someone connected to socket server');
@@ -128,7 +142,7 @@ io.on('connection',function(socket){
 
 app.get('/Trigger',function(req,res){
     res.send('OK');
-    for(var i = 0, l = 10100; i < l; i++){
+    for( i = 0, l = 10100; i < l; i++){
         pushToModel({some: 'more', complex: 'model'});
     }
 });
@@ -143,15 +157,15 @@ app.put('/Fastlane/Entity1', function(req,res){
 
 if(config.connectToStoreViaSockets){
 
-    var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
-    var ioClient = require('./node_modules/socket.io/node_modules/socket.io-client');
-    var modelSocket = null;
+     _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
+     ioClient = require('./node_modules/socket.io/node_modules/socket.io-client');
+     modelSocket = null;
 
-    var getRef = function(path){
+     getRef = function(path){
 
         console.log('connecting to storeOut at ' + _base);
 
-        var storeOut = ioClient(_base);
+         storeOut = ioClient(_base);
 
         storeOut.on('connect',function(){
 
@@ -169,9 +183,9 @@ if(config.connectToStoreViaSockets){
 }
 
 
-var zmq = require('zmq')
+ zmq = require('zmq')
   , sock = zmq.socket('push');
-var zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
+ zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
 sock.connect(zmqStore);
 console.log('bound to store at ' + zmqStore);
 pushToModel = function(msg){

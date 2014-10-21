@@ -1,10 +1,10 @@
-var es = require('./durableEventStream.js')
+var ds = require('./durableEventStream.js')
 levelup = require('level'),
 config = require('./config.js'),
 uuid = require('node-uuid'),
 _ = require('lodash');
 
-es.name('test:' + uuid.v4());
+var es = null;
 
 var handleGet = function(promise){
 	promise
@@ -18,20 +18,34 @@ var handleGet = function(promise){
 	});
 };
 
-es.push([{type: 'foo'},{type: 'bar'}])
-.then(function(res){
-	console.log(JSON.stringify(res));
+var run = function(){
 
-	var sId = es.name();
+	es.push([{type: 'foo'},{type: 'bar'}])
+	.then(function(res){
+		console.log(JSON.stringify(res));
 
-	_.forEach(res,function(e){
+		var sId = es.name();
 
-		handleGet(es.get(sId + ':' + e.streamOrder))
-		handleGet(es.get(sId + ':' + e.eventId));
+		_.forEach(res,function(e){
+
+			handleGet(es.get(sId + ':' + e.streamOrder))
+			handleGet(es.get(sId + ':' + e.eventId));
+		});
+
+		handleGet(es.get(sId + ':top'));
+
+	})
+	.fail(function(err){
+		console.log(err);
 	});
 
-	handleGet(es.get(sId + ':top'));
+};
 
+
+ds.create('test:' + uuid.v4())
+.then(function(obj){
+	es = obj;
+	run();
 })
 .fail(function(err){
 	console.log(err);

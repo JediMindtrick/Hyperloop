@@ -24,8 +24,8 @@
     </style>
 
 <!--	<script type="text/javascript" src="http://10.0.0.42:3000/javascripts/socket.io.js"></script>-->
-	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>
-<!--	<script type="text/javascript" src="/javascripts/socket.io.js"></script>-->
+<!--	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>-->
+	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
 <!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
@@ -55,6 +55,7 @@
                 <td><button ng-click="updateEntity()">Update!</button></td>
                 <td><button ng-click="addRow()">Add Row!</button></td>
 				<td><button ng-click="runSinglePerf()">Perf This!</button></td>
+				<td><button ng-click="postEvent()">Post Event!</button></td>
             </tr>
              <tr ng-repeat="step in selected.Steps">
                 <td><input ng-model="step.Name" /></td>
@@ -86,7 +87,8 @@
 
 <script type="text/javascript">
 //	var _base = 'http://10.0.0.42:3000';
-	var _base = 'http://192.168.56.100:3000';// '' for localhost
+//	var _base = 'http://192.168.56.100:3000';// '' for localhost
+	var _base = '';
 
 	var onValue = function(data){};
 
@@ -205,6 +207,23 @@ angular.module('ESPlus',[])
 
 	};
 
+	$scope.postEvent = function(){
+
+		$http.post('/Event',
+		{
+			WhichEntity: 18,
+			Name: "Morticia",
+			_metadata: { }
+		})
+		.then(function(data){
+			$log.log('http success: ' + JSON.stringify(data));
+		})
+		.catch(function(err){
+			$log.log('http error: ' + JSON.stringify(err));
+		});
+
+	};
+
     $scope.updateEntity = function(){
 
         $http.put('/Entity1',$scope.selected)
@@ -238,7 +257,7 @@ angular.module('ESPlus',[])
 
 	onValue = modelUpdate;
 
-	getRef();
+//	getRef();
 
 
 	//PERF OVER A SINGLE ENTITY, SINGLE STREAM
