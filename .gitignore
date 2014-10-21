@@ -29,3 +29,5 @@ node_modules
 
 mydb
 mydb/*
+streamStore
+streamStore/*
