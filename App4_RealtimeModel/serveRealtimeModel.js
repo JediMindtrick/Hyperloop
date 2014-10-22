@@ -1,5 +1,5 @@
 /**
- * Real-time firebase "store"
+ * Real-time model "store"
 At present it exposes two different endpoints (both in and out), http and websocket
  */
 var express = require('express');

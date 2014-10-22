@@ -3,30 +3,31 @@
  */
 var express = require('express'),
 http = require('http'),
-path = require('path'),
-//store = require('./store.js'),
-//stream = require('./esStream.js'),
-//ds = require('./durableEventStream.js'),
-config = require('./config');
+ds = require('./durableEventStream.js'),
+config = require('../config.js');
 
 app = express();
 
 // all environments
-app.set('port', process.env.PORT || config.webServerPort);
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.favicon());
+app.set('port', process.env.PORT || config.eventServerPort);
 app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
-app.use(express.static(path.join(__dirname, 'public')));
-app.engine('html', require('ejs').renderFile);
+
+//Enable CORS!!!
+//See http://enable-cors.org/server_expressjs.html
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+ });
 
 app.get('/', function(req, res) {
 
     res.render('index.html');
 });
 
-/*
 var es = null;
 ds.create('AppTestStream')
 .then(function(obj){
@@ -51,19 +52,6 @@ ds.create('AppTestStream')
     console.log('problem opening durable store!');
     console.log(err);
     throw 'initialization failure';
-});
-*/
-
-app.post('/Entity1', function(req, res){
-
-     _id = stream.createEntity(req.body);
-    res.send(_id);
-});
-
-app.put('/Entity1', function(req, res){
-
-     _id = stream.updateEntity(req.body);
-    res.send(_id);
 });
 
  server = http.createServer(app).listen(app.get('port'), function(){

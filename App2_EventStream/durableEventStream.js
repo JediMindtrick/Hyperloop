@@ -1,4 +1,4 @@
-var config = require('./config'),
+var config = require('../config'),
 uuid = require('node-uuid'),
 Q = require('q'),
 _ = require('lodash'),

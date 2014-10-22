@@ -1,5 +1,4 @@
-var config = require('./config'),
-Q = require('q'),
+var Q = require('q'),
 _ = require('lodash'),
 pubsub = require('pubsub-js');
 

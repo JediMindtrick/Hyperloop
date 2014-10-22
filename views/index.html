@@ -208,8 +208,8 @@ angular.module('ESPlus',[])
 	};
 
 	$scope.postEvent = function(){
-
-		$http.post('/Event',
+		//note: angularjs requires us to escape the colon
+		$http.post('http://localhost\:4000/Event',
 		{
 			WhichEntity: 18,
 			Name: "Morticia",
