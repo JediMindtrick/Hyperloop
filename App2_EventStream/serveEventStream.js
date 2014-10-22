@@ -15,7 +15,6 @@ app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 
-//foo
 //Enable CORS!!!
 //See http://enable-cors.org/server_expressjs.html
 app.all('*', function(req, res, next) {
