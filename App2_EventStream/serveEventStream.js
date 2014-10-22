@@ -3,7 +3,8 @@
  */
 var express = require('express'),
 http = require('http'),
-ds = require('./durableEventStream.js'),
+durableStream = require('./durableEventStream.js'),
+subscribeStream = require('./subscribableEventStream.js'),
 config = require('../config.js');
 
 app = express();
@@ -24,19 +25,30 @@ app.all('*', function(req, res, next) {
  });
 
 app.get('/', function(req, res) {
-
-    res.render('index.html');
+    res.send('stream is really located at /Stream');
 });
 
-var es = null;
-ds.create('AppTestStream')
-.then(function(obj){
-    es = obj;
+server = http.createServer(app).listen(app.get('port'), function(){
+    console.log('Express server listening on port ' + app.get('port'));
+});
+
+var io = require('socket.io')(server);
+
+var stream = null;
+
+durableStream.create('AppTestStream')
+.then(function(_new){
+  return subscribeStream.create(_new);
+})
+
+.then(function(_new){
+    stream = _new;
 
     //expose over all endpoint types (http,wsock,zmq)
-    app.post('/Event',function(req,res){
+    //Http
+    app.post('/Stream',function(req,res){
         //promise will give back an array of either {id: ''} and/or {error: ''}
-        es.push(req.body)
+        stream.push(req.body)
         .then(function(writes){
             res.send(writes);
         })
@@ -46,6 +58,22 @@ ds.create('AppTestStream')
         })
     });
 
+    //Websocket, preferred connection for browsers
+    io.on('connection',function(socket){
+
+        console.log('someone connected to socket server');
+
+        //follow same semantics as http        
+        socket.on('POST',function(val){
+            stream.push(val)
+            .then(function(writes){
+                socket.emit('SUCCESS',writes);
+            })
+            .fail(function(errors){
+                socket.emit('ERROR',errors);
+            })
+        });
+    });
 
 })
 .fail(function(err){
@@ -53,130 +81,3 @@ ds.create('AppTestStream')
     console.log(err);
     throw 'initialization failure';
 });
-
- server = http.createServer(app).listen(app.get('port'), function(){
-    console.log('Express server listening on port ' + app.get('port'));
-});
-
-//FASTLANE!!!
- pushToModel = function(msg){
-
-     serializedMsg = JSON.stringify({ _rawValue: msg});
-     headers = {
-        'Content-Type': 'application/json',
-        'Content-Length': serializedMsg.length
-    };
-
-     options = {
-        host: config.realTimeStoreHost,
-        port: config.realTimeStorePort,
-        path: '/Store/TestOrg/current/0',
-        method: 'PUT',
-        headers: headers
-    };
-
-    // Setup the request.  The options parameter is
-    // the object we defined above.
-     req = http.request(options, function(res) {
-      res.setEncoding('utf-8');
-
-       responseString = '';
-
-      res.on('data',function(){
-      });
-
-      res.on('end', function(data) {
-      });
-
-    });
-
-    req.on('error', function(e) {
-    });
-
-    req.write(serializedMsg);
-    req.end();
-};
-
- q = [];
-
- levelup = require('level');
- db = levelup(config.levelDbLocation);
- _dbCount = 0;
-
- _update = function(){
-    if(!config.perfServerSocketsOnly){
-
-         ent = {some: 'more', complex: 'model'};
-        q.push(ent);
-
-        _dbCount++;
-        db.put('test' + _dbCount,JSON.stringify(ent),function(){
-            pushToModel(q.shift());
-        });
-
-    }
-};
-
-//HERE BE WEBSOCKETS!
- io = require('socket.io')(server);
-io.on('connection',function(socket){
-
-    console.log('someone connected to socket server');
-
-    //WRITER EVENTS
-    socket.on('update',function(val){
-        _update();
-    });
-});
-
-app.get('/Trigger',function(req,res){
-    res.send('OK');
-    for( i = 0, l = 10100; i < l; i++){
-        pushToModel({some: 'more', complex: 'model'});
-    }
-});
-
-app.put('/Fastlane/Entity1', function(req,res){
-
-    _update();
-
-    res.send('OK');
-
-});
-
-if(config.connectToStoreViaSockets){
-
-     _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
-     ioClient = require('./node_modules/socket.io/node_modules/socket.io-client');
-     modelSocket = null;
-
-     getRef = function(path){
-
-        console.log('connecting to storeOut at ' + _base);
-
-         storeOut = ioClient(_base);
-
-        storeOut.on('connect',function(){
-
-            console.log('connected to storeOut at ' + _base);
-
-            pushToModel = function(msg){
-                storeOut.emit('update', {path:'/Store/TestOrg/current/0',data: msg});
-            };
-        });
-
-    };
-
-    getRef();
-
-}
-
-
- zmq = require('zmq')
-  , sock = zmq.socket('push');
- zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
-sock.connect(zmqStore);
-console.log('bound to store at ' + zmqStore);
-pushToModel = function(msg){
-    sock.send(JSON.stringify({path:'/Store/TestOrg/current/0',data: msg}));
-};

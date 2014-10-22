@@ -26,7 +26,6 @@
 <!--	<script type="text/javascript" src="http://10.0.0.42:3000/javascripts/socket.io.js"></script>-->
 <!--	<script type="text/javascript" src="http://192.168.56.100:3000/javascripts/socket.io.js"></script>-->
 	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
-<!--    <script type="text/javascript" src="/javascripts/firebase.js"></script>-->
     <script type="text/javascript" src="/javascripts/angular.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
     <script type="text/javascript" src="/javascripts/angular-ui-router.min.js"></script>
@@ -86,8 +85,18 @@
 
 
 <script type="text/javascript">
-//	var _base = 'http://10.0.0.42:3000';
-//	var _base = 'http://192.168.56.100:3000';// '' for localhost
+
+	var eventStream = io('http://localhost:4000');
+	eventStream.on('connect',function(){
+		console.log('connected to stream');
+		eventStream.emit('POST',{
+			WhichEntity: 18,
+			Name: "Morticia",
+			_metadata: { }
+		});
+	});
+
+
 	var _base = '';
 
 	var onValue = function(data){};
@@ -109,17 +118,6 @@
 			root.emit('subscribe','/TestOrg/current');
 		});
 	};
-
-
-/*
-	var getRef = function(path){
-		myFirebaseRef = new Firebase("https://test-workflow.firebaseio.com" + path);
-
-		myFirebaseRef.child("current").on("value", function(snapshot) {
-			onValue(snapshot.val());
-		});
-	};
-*/
 
     function runScope(angularScope,callback){
 
@@ -209,7 +207,7 @@ angular.module('ESPlus',[])
 
 	$scope.postEvent = function(){
 		//note: angularjs requires us to escape the colon
-		$http.post('http://localhost\:4000/Event',
+		$http.post('http://localhost\:4000/Stream',
 		{
 			WhichEntity: 18,
 			Name: "Morticia",
