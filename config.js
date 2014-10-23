@@ -24,7 +24,7 @@ exports.blpServerZmqPort = 5000;
 //store
 //this is where model updates come in via zmq, they go out to all subscribers via websockets
 exports.realTimeStoreHttpHost = 'localhost';
-exports.realTimeStoreHttpPort = 6000;
+exports.realTimeStoreHttpPort = 6001;
 exports.realTimeStoreZmqHost = '127.0.0.1';
 exports.realTimeStoreZmqPort = 6500;
 exports.realTimeStoreContainer = './modelStore';

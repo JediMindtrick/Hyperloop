@@ -31,7 +31,7 @@ app.get('/', function(req, res) {
     res.send('stream is really located at /Stream');
 });
 
-app.post('/Subscribe',function(req,res){    
+app.post('/SubscribeStream',function(req,res){    
     console.log('subscription request: ' + JSON.stringify(req.body));
     /*
 Request looks sorta like this

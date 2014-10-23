@@ -4,7 +4,7 @@ At present it exposes two different endpoints (both in and out), http and websoc
  */
 var express = require('express'),
 http = require('http'),
-path = require('path'),
+//path = require('path'),
 store = require('./store.js'),
 config = require('../config'),
 zmq = require('zmq');
@@ -12,13 +12,17 @@ zmq = require('zmq');
 var app = express();
 
 // all environments
-app.set('port', process.env.PORT || config.realTimeStorePort);
+app.set('port', process.env.PORT || config.realTimeStoreHttpPort);
 app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 
 var server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
+});
+
+app.get('/',function(req,res){
+    res.send('OK');
 });
 
 //read
@@ -84,8 +88,10 @@ io.on('connection',function(socket){
 
             var _val = store.get('/Store' + path);
             //CONSIDER emitting 'read' instead of 'value', which might map to the semantics better
+            //CONSIDER emitting POST, or even PUT, since those would be our preferred semantics throughout
+            //PUT might be better, since we are technically updating the model
             if(_val != null){
-              socket.emit('value',_val);
+              socket.emit('POST',_val);
             }
 
         });
@@ -97,11 +103,12 @@ io.on('connection',function(socket){
 
 var sock = zmq.socket('pull');
 
-var zmqStore = 'tcp://' + config.zeromqIn + ':' + config.zeromqPort;
+var zmqStore = 'tcp://' + config.realTimeStoreZmqHost + ':' + config.realTimeStoreZmqPort;
 sock.bindSync(zmqStore);
 console.log('store bound to ' + zmqStore);
 
 sock.on('message', function(msg){
+    console.log('received an update to the store.');
 
     var val = JSON.parse(msg);
     store.set(val.path, val.data);

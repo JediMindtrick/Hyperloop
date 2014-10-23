@@ -1,6 +1,8 @@
 var http = require('../simpleHttp'),
 config = require('../config'),
-zmq = require('zmq');
+zmq = require('zmq'),
+logic = require('./sampleLogic').logic,
+_ = require('lodash');
 
 //Stuff going out
 var storeSocket = zmq.socket('push');
@@ -16,15 +18,22 @@ var blpSubscriberSocket = zmq.socket('pull');
 var zmqBlpLocation = 'tcp://' + config.blpServerZmqHost + ':' + config.blpServerZmqPort;
 blpSubscriberSocket.bindSync(zmqBlpLocation);
 console.log('listening for stream updates at ' + zmqBlpLocation);
-var onUpdate = function(msg){
+var onNew = function(msg){
 	var val = JSON.parse(msg);
 	console.log('received new event: ' + msg);
+	var updates = logic(val);
+	if(updates){
+		_.forEach(updates,function(update){
+			storeSocket.send(JSON.stringify(update));
+		});
+	}
 };
-blpSubscriberSocket.on('message', onUpdate);
+//'message' is the zmq event, our preferred semantics would be 'POST'
+blpSubscriberSocket.on('message', onNew);
 
 var client = http.create(config.eventServerHttpHost, config.eventServerHttpPort, 3);
 
-client.post('/Subscribe',{
+client.post('/SubscribeStream',{
 	streamName: config.testStreamName,
 	protocol: 'zmq',
 	host: config.blpServerZmqHost,

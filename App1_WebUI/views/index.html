@@ -63,12 +63,12 @@
         </tbody>
 
         <tbody style="height:250px;">
-            <tr ng-repeat="(key,val) in model" ng-if="key != '_metadata'">
-                <td>{{key}}</td>
-                <td>{{val.Id}}</td>
+            <tr ng-repeat="val in model track by $index">
+                <td>{{val._metadata.streamOrder}}</td>
+                <td>{{val._metadata.eventId}}</td>
                 <td><input ng-disabled="true" ng-model="val.Name" /></td>
                 <td><input ng-disabled="true" ng-model="val.WhichEntity" /></td>
-                <td><button ng-click="selectEntity(key,val)">Edit</button></td>
+                <td><button ng-click="selectEntity(val)">Edit</button></td>
             </tr>
         </tbody>
 
@@ -89,7 +89,7 @@
 	});
 
 
-	var _base = '';
+	var _base = 'http://localhost:6001';
 
 	var onValue = function(data){};
 
@@ -100,14 +100,14 @@
 			console.log('server ack ' + path);
 			var socket = io(_base + path);
 
-			socket.on('value',function(data){
+			socket.on('POST',function(data){
 				onValue(data);
 			});
 		});
 
 		root.on('connect',function(){
 			console.log('subscribing to /TestOrg');
-			root.emit('subscribe','/TestOrg/current');
+			root.emit('subscribe','/TestOrg/current/0');
 		});
 	};
 
@@ -133,7 +133,8 @@
 angular.module('ESPlus',[])
 .controller('MainCtrl',['$scope','$http','$log',function($scope,$http,$log){
 
-    $scope.model = {};
+    $scope.model = [{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":42,"eventId":"d67cb466-4103-4d76-9af0-58318bd0b79e","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":43,"eventId":"b6ac0419-d853-488f-a5bc-2d912ab5e541","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":44,"eventId":"4dc67ca9-5ed9-4ca4-a8e1-55e4aa74a4c2","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":45,"eventId":"d57144c4-d0ae-4208-b6a5-3e1ae0529894","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":46,"eventId":"9c823af6-10a6-43f0-88aa-67af3b706f5a","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":47,"eventId":"f0d523c7-f884-4b48-9061-91b96f747fec","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":48,"eventId":"1bf933c0-cc03-48da-9418-32d77dbcdb48","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":49,"eventId":"185fa6b9-1c6a-4186-8522-566367f3a6fd","streamId":"AppTestStream"}},{"WhichEntity":18,"Name":"Morticia","_metadata":{"streamOrder":50,"eventId":"8c948365-283e-4c92-afb1-b3058a7c281d","streamId":"AppTestStream"}}];
+
     $scope.selected = { };
     $scope.selectedKey = '';
 
@@ -209,15 +210,7 @@ angular.module('ESPlus',[])
 		runScope($scope,function(){
 			var _model = snapshot;
 
-			for(var ent in _model){
-				if(_model[ent].Steps && _model[ent].Steps.length){
-					for(var i = 0, l = _model[ent].Steps.length; i < l; i++){
-						var curr = _model[ent].Steps[i];
-						curr.Start = new Date(curr.Start);
-						curr.End = new Date(curr.End);
-					}
-				}
-			}
+            console.log('received new model: ' + JSON.stringify(_model));
 
 			$scope.model = _model;
 		});
@@ -225,7 +218,7 @@ angular.module('ESPlus',[])
 
 	onValue = modelUpdate;
 
-//	getRef();
+	getRef();
 
 }])
 

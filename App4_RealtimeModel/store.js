@@ -51,7 +51,7 @@ var setElement = function(pathArr, val, obj, builtPath){
     if(pathArr.length == 1){
         obj[pathArr[0]] = val;
 
-        observers[_newPath].emit('value',val);
+        observers[_newPath].emit('POST',val);
 
         return val;
     }
@@ -67,7 +67,7 @@ var setElement = function(pathArr, val, obj, builtPath){
 
     //notify after update
     if(observers[_newPath] != undefined){
-        observers[_newPath].emit('value',obj[pathArr[0]]);
+        observers[_newPath].emit('POST',obj[pathArr[0]]);
     }
 };
 
