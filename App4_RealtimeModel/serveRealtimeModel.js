@@ -2,11 +2,12 @@
  * Real-time model "store"
 At present it exposes two different endpoints (both in and out), http and websocket
  */
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var store = require('./store.js');
-var config = require('./config');
+var express = require('express'),
+http = require('http'),
+path = require('path'),
+store = require('./store.js'),
+config = require('../config'),
+zmq = require('zmq');
 
 var app = express();
 
@@ -61,14 +62,13 @@ io.on('connection',function(socket){
     console.log('someone connected to socket server');
 
     //WRITER EVENTS
-    socket.on('update',function(val){
+    socket.on('PUT',function(val){
         store.set(val.path, val.data);
     });
 
-    socket.on('create',function(val){
+    socket.on('POST',function(val){
         var result = store.set(val.path, val.data);
     });
-
 
     //READER SUBSCRIBE
     socket.on('subscribe',function(path){
@@ -95,8 +95,7 @@ io.on('connection',function(socket){
 });
 
 
-var zmq = require('zmq')
-  , sock = zmq.socket('pull');
+var sock = zmq.socket('pull');
 
 var zmqStore = 'tcp://' + config.zeromqIn + ':' + config.zeromqPort;
 sock.bindSync(zmqStore);

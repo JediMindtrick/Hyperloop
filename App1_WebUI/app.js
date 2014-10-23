@@ -9,7 +9,7 @@ config = require('../config');
 app = express();
 
 // all environments
-app.set('port', process.env.PORT || config.webServerPort);
+app.set('port', process.env.PORT || config.webServerHttpPort);
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.favicon());
 app.use(express.json(false));

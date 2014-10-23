@@ -10,7 +10,7 @@ config = require('../config.js');
 app = express();
 
 // all environments
-app.set('port', process.env.PORT || config.eventServerPort);
+app.set('port', process.env.PORT || config.eventServerHttpPort);
 app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -28,6 +28,13 @@ app.get('/', function(req, res) {
     res.send('stream is really located at /Stream');
 });
 
+app.post('/Subscribe',function(req,res){
+    //get subscription function
+    //TODO: alert monitor so that it can keep tabs on subscriber and make sure it didn't die
+    //subscribe to the stream
+    console.log(JSON.stringify(req.body));
+});
+
 server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
 });
@@ -36,7 +43,7 @@ var io = require('socket.io')(server);
 
 var stream = null;
 
-durableStream.create('AppTestStream')
+durableStream.create(config.testStreamName)
 .then(function(_new){
   return subscribeStream.create(_new);
 })

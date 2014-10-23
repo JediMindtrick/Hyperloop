@@ -184,7 +184,7 @@ if(config.connectToStoreViaSockets){
 }
 
 
- zmq = require('zmq')
+var zmq = require('zmq')
   , sock = zmq.socket('push');
  zmqStore = 'tcp://' + config.zeromqOut + ':' + config.zeromqPort;
 sock.connect(zmqStore);
