@@ -1,11 +1,21 @@
 var Q = require('q'),
-http = require('http');
+http = require('http'),
+retry = require('./functions').retryPromise;
 
-var _create = function(host,port){
+var _create = function(host,port,_retries){
 
 	var client = {};
+	var retries = _retries || 1;
 
-	var _send = function(url,body,verb){
+	var _send = function(url,body,verb){ 
+		return retry(
+			function(){
+				return _callHttp(url,body,verb);
+			},
+			retries);
+	}
+
+	var _callHttp = function(url,body,verb){
 		var toReturn = Q.defer();
 
 	     var serializedMsg = JSON.stringify(body);

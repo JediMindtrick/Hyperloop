@@ -18,11 +18,12 @@ blpSubscriberSocket.bindSync(zmqBlpLocation);
 console.log('listening for stream updates at ' + zmqBlpLocation);
 var onUpdate = function(msg){
 	var val = JSON.parse(msg);
-	console.log(msg);
+	console.log('received new event: ' + msg);
 };
-blpSubscriberSocket.on('POST', onUpdate);
+blpSubscriberSocket.on('message', onUpdate);
 
-var client = http.create(config.eventServerHttpHost, config.eventServerHttpPort);
+var client = http.create(config.eventServerHttpHost, config.eventServerHttpPort, 3);
+
 client.post('/Subscribe',{
 	streamName: config.testStreamName,
 	protocol: 'zmq',

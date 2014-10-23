@@ -5,7 +5,10 @@ var express = require('express'),
 http = require('http'),
 durableStream = require('./durableEventStream.js'),
 subscribeStream = require('./subscribableEventStream.js'),
-config = require('../config.js');
+config = require('../config.js')
+getSubscription = require('./subscriptionFactory').getSubscription;
+
+var stream = null;
 
 app = express();
 
@@ -28,11 +31,23 @@ app.get('/', function(req, res) {
     res.send('stream is really located at /Stream');
 });
 
-app.post('/Subscribe',function(req,res){
+app.post('/Subscribe',function(req,res){    
+    console.log('subscription request: ' + JSON.stringify(req.body));
+    /*
+Request looks sorta like this
+{
+    streamName: config.testStreamName,
+    protocol: 'zmq',
+    host: config.blpServerZmqHost,
+    port: config.blpServerZmqPort
+}
+Use streamName to subscribe to the right stream
+    */
     //get subscription function
+    var subFunc = getSubscription(req.body);
     //TODO: alert monitor so that it can keep tabs on subscriber and make sure it didn't die
     //subscribe to the stream
-    console.log(JSON.stringify(req.body));
+    stream.subscribe('POST',subFunc);
 });
 
 server = http.createServer(app).listen(app.get('port'), function(){
@@ -40,8 +55,6 @@ server = http.createServer(app).listen(app.get('port'), function(){
 });
 
 var io = require('socket.io')(server);
-
-var stream = null;
 
 durableStream.create(config.testStreamName)
 .then(function(_new){

@@ -9,7 +9,7 @@ var _create = function(s){
 
 	var notifyNewEvent = function(evt){
 		console.log('notifying subscribers of: ' + JSON.stringify(evt));
-		pubsub.publish('NEW_EVENT',evt);
+		pubsub.publish('POST',evt);
 	};
 
 	var _oldPush = s.push;
