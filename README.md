@@ -1,7 +1,6 @@
-ESPlusWebClient
-===============
-
-Web application for Event Sourcing + Firebase expirement
+Hyperloop
+=========
+System for Event Sourcing + Realtime model push experiment
 
 
 Here's how you install zeromq, before doing npm install zmq:
