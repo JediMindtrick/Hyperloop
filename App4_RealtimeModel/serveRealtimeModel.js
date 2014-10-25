@@ -108,7 +108,7 @@ sock.bindSync(zmqStore);
 console.log('store bound to ' + zmqStore);
 
 sock.on('message', function(msg){
-    console.log('received an update to the store.');
+//    console.log('received an update to the store.');
 
     var val = JSON.parse(msg);
     store.set(val.path, val.data);

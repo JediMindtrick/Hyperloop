@@ -8,7 +8,7 @@ var _create = function(s){
 	var stream = s;
 
 	var notifyNewEvent = function(evt){
-		console.log('notifying subscribers of: ' + JSON.stringify(evt));
+//		console.log('notifying subscribers of: ' + JSON.stringify(evt));
 		pubsub.publish('POST',evt);
 	};
 

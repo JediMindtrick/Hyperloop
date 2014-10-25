@@ -85,11 +85,17 @@ var send = function(){
 };
 
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
-var webAppSocket = io('http://' + config.webServerHost + ':' + config.webServerPort);
+var outUrl = 'http://' + config.eventServerHttpHost + ':' + config.eventServerHttpPort;
+console.log('connecting to: ' + outUrl);
+var webAppSocket = io(outUrl);
 webAppSocket.on('connect',function(){
     console.log('connected to web app socket');
     send = function(){
-        webAppSocket.emit('update',JSON.stringify([]));
+        webAppSocket.emit('POST',{
+            WhichEntity: 18,
+            Name: "Morticia",
+            _metadata: { }
+        });
     };
 });
 
@@ -109,7 +115,7 @@ var runSinglePerf = function(){
 
 };
 
-var _base = 'http://' + config.realTimeStoreHost + ':' + config.realTimeStorePort;
+var _base = 'http://' + config.realTimeStoreHttpHost + ':' + config.realTimeStoreHttpPort;
 
 var onValue = function(data){};
 var socket = null;
@@ -123,7 +129,7 @@ var getRef = function(path){
 
         if(config.perfRoundtrip){
             console.log('perfing round trip');
-            socket.on('value',function(data){
+            socket.on('POST',function(data){
                 onSinglePerf();
             });
         }
@@ -137,7 +143,7 @@ var getRef = function(path){
 
     root.on('connect',function(){
         console.log('subscribing to /TestOrg');
-        root.emit('subscribe','/TestOrg/current');
+        root.emit('subscribe','/TestOrg/current/0');
     });
 
 };

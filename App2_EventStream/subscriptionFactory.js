@@ -8,7 +8,7 @@ var subFuncs = {
 		outSocket.connect(zmqLocation);
 
 		return function(topic,data){
-			console.log('pubbing data: ' + JSON.stringify(data));		
+//			console.log('pubbing data: ' + JSON.stringify(data));		
 			outSocket.send(JSON.stringify(data));
 		};		
 	}	
