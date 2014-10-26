@@ -1,18 +1,41 @@
-var http = require('http');
-var config = require('./config.js');
+var http = require('http'),
+config = require('./config.js'),
+uuid = require('node-uuid'),
+streamClient = require('./streamClient');
 
-var singlePerfLimit = 10000;
+var singlePerfLimit = 10;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
 var ended = false;
+var dataPoints = [];
+var _end = new Date();
+
+var saveDataPoints = function() {
+
+    //write it to the perf events stream
+    var testRun = {
+        name: uuid.v4(),
+        startTime: singlePerfStart,
+        endTime: _end,
+        data: dataPoints
+    };
+
+    streamClient.create(config.perfEventsHost,config.perfEventsPort)
+        .then(function(_cl){
+            _cl.send(testRun);
+            setTimeout(function(){
+                process.exit();
+            },3000);
+        });
+}
 
 var checkEnd = function(){
     if(perfReceived >= perfMax && !ended){
-        var _now = new Date();
-        console.log('end perf ' + _now);
+        _end = new Date();
+        console.log('end perf ' + _end);
 
-        var t1 = _now;
+        var t1 = _end;
         var t2 = singlePerfStart;
         var dif = t1.getTime() - t2.getTime()
 
@@ -22,10 +45,13 @@ var checkEnd = function(){
         console.log('that is ' + (singlePerfLimit / Seconds_from_T1_to_T2) + ' records/sec');
         ended = true;
         socket.disconnect();
+        saveDataPoints();
     }
 };
 
-var onSinglePerf = function(snapshot){
+var onSinglePerf = function(data){
+    data._metadata.perfClientReceived = (new Date()).getTime();
+    dataPoints.push(data);
     perfReceived++;
 
     if(perfReceived % 100 === 0){
@@ -41,48 +67,7 @@ var _onHttpEnd = (
     function(){ }
     );
 
-var send = function(){
-/*
-    var serializedMsg = JSON.stringify([]);
-    var headers = {
-        'Content-Type': 'application/json',
-        'Content-Length': serializedMsg.length
-    };
-
-    var options = {
-        host: config.webServerHost,
-        port: config.webServerPort,
-        path: '/Fastlane/Entity1',
-        method: 'PUT',
-        headers: headers
-    };
-
-    // Setup the request.  The options parameter is
-    // the object we defined above.
-    var req = http.request(options, function(res) {
-        res.setEncoding('utf-8');
-
-        var responseString = '';
-
-        res.on('data',function(){
-        });
-
-        res.on('end',_onHttpEnd);
-    });
-
-    req.on('error', function(e) {
-        // TODO: handle error.
-        errors++;
-        console.log('perf POST error count: ' + errors);
-        perfMax--;
-        checkEnd();
-
-    });
-
-    req.write(serializedMsg);
-    req.end();
-*/
-};
+var send = function(){ };
 
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
 var outUrl = 'http://' + config.eventServerHttpHost + ':' + config.eventServerHttpPort;
@@ -94,13 +79,16 @@ webAppSocket.on('connect',function(){
         webAppSocket.emit('POST',{
             WhichEntity: 18,
             Name: "Morticia",
-            _metadata: { }
+            _metadata: { 
+                perfClientSent: (new Date()).getTime()
+            }
         });
     };
 });
 
 
 var runSinglePerf = function(){
+    dataPoints = [];
     perfReceived = 0;
     perfMax = singlePerfLimit;
     console.log('perfMax ' + perfMax)
@@ -130,7 +118,7 @@ var getRef = function(path){
         if(config.perfRoundtrip){
             console.log('perfing round trip');
             socket.on('POST',function(data){
-                onSinglePerf();
+                onSinglePerf(data);
             });
         }
 

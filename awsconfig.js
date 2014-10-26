@@ -14,12 +14,12 @@ var machine2public = '54.69.187.161';//web, stream
 
 //input layer
 //this serves up our html, but events then go directly to the stream via websockets
-exports.webServerHttpHost = machine2public;
+exports.webServerHttpHost = machine1public;
 exports.webServerHttpPort = 3000;
 
 //stream
 //this is where new events come in via websocket, they go out to the blp via zmq
-exports.eventServerHttpHost = machine2public;
+exports.eventServerHttpHost = machine1public;
 exports.eventServerHttpPort = 4000;
 exports.eventServerStoreContainer = './streamStore';
 
