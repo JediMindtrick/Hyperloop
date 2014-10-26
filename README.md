@@ -16,3 +16,5 @@ sudo ldconfig
 ```
 
 Set HYPERLOOP_ENV environment variable for config to pick up.
+	'local' = all localhost, configured in localconfig.js
+	'aws' = whatever is configured in awsconfig.js
