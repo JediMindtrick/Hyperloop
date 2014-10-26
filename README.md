@@ -14,3 +14,5 @@ sudo apt-get install libtool pkg-config build-essential autoconf automake uuid-d
 sudo make install
 sudo ldconfig
 ```
+
+Set HYPERLOOP_ENV environment variable for config to pick up.
