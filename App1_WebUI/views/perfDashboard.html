@@ -31,15 +31,15 @@
         <tbody style="height:250px;">
             <tr>
                 <td>#</td>
-                <td>streamOrder</td>
-                <td>eventId</td>
-                <td>perfClientSent</td>
-                <td>perfStreamReceived</td>
-                <td>perfBeginCommit</td>
-                <td>perfEndCommit</td>
-                <td>perfPublishEvent</td>
-                <td>perfPublishReceived</td>
-                <td>perfClientReceived</td>
+                <td>Stream Order</td>
+                <td>Event Id</td>
+                <td>Client Sent</td>
+                <td>Stream Received</td>
+                <td>Begin Commit</td>
+                <td>End Commit</td>
+                <td>Publish Event</td>
+                <td>Publish Received</td>
+                <td>Client Received</td>
 
             </tr>
             <tr ng-repeat="val in model.data track by $index | orderBy:streamOrder">
