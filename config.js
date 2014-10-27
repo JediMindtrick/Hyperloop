@@ -26,5 +26,6 @@ if(!process.env.HYPERLOOP_ENV){
 	}
 }
 
-exports.perfEventsHost = '54.69.199.211';
-exports.perfEventsPort = 4000;
+var a = require('./configA');
+exports.perfEventsHost = a.eventServerHttpHost;
+exports.perfEventsPort = a.eventServerHttpPort;

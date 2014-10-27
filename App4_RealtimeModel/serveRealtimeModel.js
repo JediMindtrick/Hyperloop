@@ -4,10 +4,10 @@ At present it exposes two different endpoints (both in and out), http and websoc
  */
 var express = require('express'),
 http = require('http'),
-//path = require('path'),
 store = require('./store.js'),
 config = require('../config'),
-zmq = require('zmq');
+zmq = require('zmq'),
+_ = require('lodash');
 
 var app = express();
 
@@ -16,6 +16,15 @@ app.set('port', process.env.PORT || config.realTimeStoreHttpPort);
 app.use(express.json(false));
 app.use(express.urlencoded());
 app.use(express.methodOverride());
+
+//Enable CORS!!!
+//See http://enable-cors.org/server_expressjs.html
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+ });
 
 var server = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' + app.get('port'));
@@ -108,8 +117,12 @@ sock.bindSync(zmqStore);
 console.log('store bound to ' + zmqStore);
 
 sock.on('message', function(msg){
-//    console.log('received an update to the store.');
 
     var val = JSON.parse(msg);
+    console.log(JSON.stringify(val));
+
+    var _storeReceived = (new Date()).getTime();
+    val._metadata.perfStoreReceived = _storeReceived;
+
     store.set(val.path, val.data);
 });

@@ -19,12 +19,15 @@ var create = function(name){
 
 		var evts = _.isArray(_evt) ? _evt : [_evt];
 
+		var _beginCommit = (new Date()).getTime();
 
 		var batch = db.batch();
 
-		var writeIds = _.map(evts,function(evt){
+		var savedEvents = _.map(evts,function(evt){
 			
 			if(evt._metadata === undefined || evt._metadata === null) evt._metadata = {};
+
+			evt.perfBeginCommit = _beginCommit;
 			
 			//add order and id metadata
 			_order++;
@@ -50,7 +53,12 @@ var create = function(name){
 			if(err){
 				deferred.reject('Unable to commit batch write: ' + err);
 			}else{
-				deferred.resolve(writeIds);
+				var _endCommit = (new Date()).getTime();
+				_.forEach(savedEvents,function(evt){
+					evt._metadata.perfEndCommit = _endCommit;
+				});
+
+				deferred.resolve(savedEvents);
 			}
 		});
 

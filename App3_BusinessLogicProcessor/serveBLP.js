@@ -18,16 +18,29 @@ var blpSubscriberSocket = zmq.socket('pull');
 var zmqBlpLocation = 'tcp://' + config.blpServerZmqHost + ':' + config.blpServerZmqPort;
 blpSubscriberSocket.bindSync(zmqBlpLocation);
 console.log('listening for stream updates at ' + zmqBlpLocation);
+
 var onNew = function(msg){
 	var val = JSON.parse(msg);
-//	console.log('received new event: ' + msg);
+
+	var _publishReceived = (new Date()).getTime();
+	_.forEach(val,function(evt){
+		evt._metadata = evt._metadata ? evt._metadata : {};
+		evt._metadata.perfPublishReceived = _publishReceived;
+	});
+
 	var updates = logic(val);
+
 	if(updates){
+		var _sendToStore = (new Date()).getTime();
 		_.forEach(updates,function(update){
+			update._metadata = update._metadata ? update._metadata : {};
+			update._metadata.perfSendToStore = _sendToStore;
 			storeSocket.send(JSON.stringify(update));
 		});
 	}
 };
+
+
 //'message' is the zmq event, our preferred semantics would be 'POST'
 blpSubscriberSocket.on('message', onNew);
 

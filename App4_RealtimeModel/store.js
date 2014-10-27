@@ -67,6 +67,10 @@ var setElement = function(pathArr, val, obj, builtPath){
 
     //notify after update
     if(observers[_newPath] != undefined){
+
+        var _notifyModelChange = (new Date()).getTime();
+        obj[pathArr[0]]._metadata.perfNotifyModelChange = _notifyModelChange;
+
         observers[_newPath].emit('POST',obj[pathArr[0]]);
     }
 };

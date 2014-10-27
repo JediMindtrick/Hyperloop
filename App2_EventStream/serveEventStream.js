@@ -6,7 +6,8 @@ http = require('http'),
 durableStream = require('./durableEventStream.js'),
 subscribeStream = require('./subscribableEventStream.js'),
 config = require('../config.js')
-getSubscription = require('./subscriptionFactory').getSubscription;
+getSubscription = require('./subscriptionFactory').getSubscription,
+_ = require('lodash');
 
 var stream = null;
 
@@ -85,7 +86,15 @@ durableStream.create(config.testStreamName)
 
         //follow same semantics as http        
         socket.on('POST',function(val){
-            stream.push(val)
+            var _streamReceived = (new Date()).getTime();
+
+            var toPush = _.isArray(val) ? val : [val];
+            _.forEach(toPush,function(_val){
+                _val._metadata = _val._metadata ? _val._metadata : {};
+                _val._metadata.perfStreamReceived = _streamReceived;
+            });
+            
+            stream.push(toPush)
             .then(function(writes){
                 socket.emit('SUCCESS',writes);
             })

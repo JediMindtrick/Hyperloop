@@ -1,0 +1,144 @@
+<html ng-app="ESPlus">
+<head>
+	<link rel="stylesheet" type="text/css" href="/stylesheets/bootstrap.min.css">
+
+    <style>
+        table {
+            width: 1000px;
+        }
+
+        thead, tbody { display: block; }
+
+        tbody {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        tbody td, thead th {
+            width: 20%;  /* Optional */
+        }
+
+        tbody input {
+            width: 100%;
+        }
+    </style>
+
+	<script type="text/javascript" src="/javascripts/socket.io.js"></script>
+    <script type="text/javascript" src="/javascripts/angular.min.js"></script>
+    <script type="text/javascript" src="/javascripts/angular-ui.min.js"></script>
+    <script type="text/javascript" src="/javascripts/angular-ui-router.min.js"></script>
+</head>
+<body ng-controller="MainCtrl">
+
+<div style="margin-left:50px;">
+    <h1>ES+Realtime Model Push Performance Dashboard</h1>
+
+<!--
+    <table style="height: 30px;">
+        <tbody style="height:250px;">
+            <tr ng-repeat="val in model track by $index">
+                <td>{{val._metadata.streamOrder}}</td>
+                <td>{{val._metadata.eventId}}</td>
+                <td><input ng-disabled="true" ng-model="val.Name" /></td>
+                <td><input ng-disabled="true" ng-model="val.WhichEntity" /></td>
+            </tr>
+        </tbody>
+    </table>
+    -->
+
+</div>
+
+    <footer>
+        <p>&copy; 2014, Brandon Wilhite</p>
+    </footer>
+
+
+<script type="text/javascript">
+
+/*
+	var eventStream = io('http://localhost:4000');
+	eventStream.on('connect',function(){
+		console.log('connected to stream');
+	});
+
+
+	var _base = 'http://localhost:6001';
+
+	var onValue = function(data){};
+
+	var getRef = function(path){
+		var root = io(_base);
+
+		root.on('subscribed',function(path){
+			console.log('server ack ' + path);
+			var socket = io(_base + path);
+
+			socket.on('POST',function(data){
+				onValue(data);
+			});
+		});
+
+		root.on('connect',function(){
+			console.log('subscribing to /TestOrg');
+			root.emit('subscribe','/TestOrg/current/0');
+		});
+	};
+    */
+
+    function runScope(angularScope,callback){
+
+		var result = void 0;
+		var phase = angularScope.$root.$$phase;
+
+		if(phase == '$apply' || phase == '$digest'){
+			result = callback(angularScope);
+		}else{
+			angularScope.$apply(function(){
+				result = callback(angularScope);
+			});
+		}
+
+	    return result;
+	}
+
+</script>
+<script type="text/javascript">
+
+angular.module('ESPlus',[])
+.controller('MainCtrl',['$scope','$http','$log',function($scope,$http,$log){
+
+    $scope.model = [];
+
+    $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')
+    .then(function(data){
+        $log.log('http success: ' + JSON.stringify(data));
+    })
+    .catch(function(err){
+        $log.log('http error: ' + JSON.stringify(err));
+    });
+
+/*
+	var modelUpdate = function(snapshot){
+
+		runScope($scope,function(){
+			var _model = snapshot;
+
+            console.log('received new model: ' + JSON.stringify(_model));
+
+			$scope.model = _model;
+		});
+	};
+
+	onValue = modelUpdate;
+
+	getRef();
+    */
+
+}])
+
+;
+
+</script>
+
+</body>
+</html>

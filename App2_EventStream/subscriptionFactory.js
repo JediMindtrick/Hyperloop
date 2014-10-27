@@ -1,4 +1,5 @@
-var zmq = require('zmq');
+var zmq = require('zmq'),
+_ = require('lodash');
 
 var subFuncs = {
 	'zmq': function(subscription){
@@ -7,8 +8,12 @@ var subFuncs = {
 		console.log('connecting to ' + zmqLocation);
 		outSocket.connect(zmqLocation);
 
-		return function(topic,data){
-//			console.log('pubbing data: ' + JSON.stringify(data));		
+		return function(topic,data){	
+			var _publishEvent = (new Date()).getTime();
+			_.forEach(data,function(evt){
+				evt._metadata.perfPublishEvent = _publishEvent;
+			});
+
 			outSocket.send(JSON.stringify(data));
 		};		
 	}	

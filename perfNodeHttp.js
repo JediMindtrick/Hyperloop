@@ -21,6 +21,8 @@ var saveDataPoints = function() {
         data: dataPoints
     };
 
+    console.log(JSON.stringify(testRun));
+
     streamClient.create(config.perfEventsHost,config.perfEventsPort)
         .then(function(_cl){
             _cl.send(testRun);
