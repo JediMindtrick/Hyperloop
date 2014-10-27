@@ -11,6 +11,9 @@ if(!process.env.HYPERLOOP_ENV){
 }else{
 	var _env = process.env.HYPERLOOP_ENV.toLowerCase();
 	switch(_env){
+		case 'hyperloopa':
+			_mapConfig(require('./configA'));
+			break;
 		case 'aws':
 			_mapConfig(require('./awsconfig'));
 			break;

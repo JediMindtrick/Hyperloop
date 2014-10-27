@@ -28,7 +28,6 @@ var create = function(name){
 			
 			//add order and id metadata
 			_order++;
-//			console.log(_order);
 			evt._metadata.streamOrder = _order;
 			evt._metadata.eventId = uuid.v4();
 			evt._metadata.streamId = streamId;
