@@ -35,14 +35,14 @@ app.get('/', function(req, res) {
 app.post('/SubscribeStream',function(req,res){    
     console.log('subscription request: ' + JSON.stringify(req.body));
     /*
-Request looks sorta like this
-{
-    streamName: config.testStreamName,
-    protocol: 'zmq',
-    host: config.blpServerZmqHost,
-    port: config.blpServerZmqPort
-}
-Use streamName to subscribe to the right stream
+    Request looks sorta like this
+    {
+        streamName: config.testStreamName,
+        protocol: 'zmq',
+        host: config.blpServerZmqHost,
+        port: config.blpServerZmqPort
+    }
+    Use streamName to subscribe to the right stream
     */
     //get subscription function
     var subFunc = getSubscription(req.body);

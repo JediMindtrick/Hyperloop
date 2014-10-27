@@ -27,10 +27,10 @@ var create = function(name){
 			
 			if(evt._metadata === undefined || evt._metadata === null) evt._metadata = {};
 
-			evt.perfBeginCommit = _beginCommit;
+			evt._metadata.perfBeginCommit = _beginCommit;
 			
 			//add order and id metadata
-			_order++;
+			_order = _order + 1;
 			evt._metadata.streamOrder = _order;
 			evt._metadata.eventId = uuid.v4();
 			evt._metadata.streamId = streamId;
@@ -49,7 +49,7 @@ var create = function(name){
 
 		//key,value,options,callback
 		//we want to guarantee everything got saved
-		db.put(streamId + ':top',_order,{sync: true},function(err){
+		db.put(streamId + ':top',_order,{/*sync: true*/},function(err){
 			if(err){
 				deferred.reject('Unable to commit batch write: ' + err);
 			}else{

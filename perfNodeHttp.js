@@ -3,7 +3,7 @@ config = require('./config.js'),
 uuid = require('node-uuid'),
 streamClient = require('./streamClient');
 
-var singlePerfLimit = 10;
+var singlePerfLimit = 1000;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
@@ -21,7 +21,7 @@ var saveDataPoints = function() {
         data: dataPoints
     };
 
-    console.log(JSON.stringify(testRun));
+//    console.log(JSON.stringify(testRun));
 
     streamClient.create(config.perfEventsHost,config.perfEventsPort)
         .then(function(_cl){
