@@ -49,7 +49,7 @@ var create = function(name){
 
 		//key,value,options,callback
 		//we want to guarantee everything got saved
-		db.put(streamId + ':top',_order,{/*sync: true*/},function(err){
+		db.put(streamId + ':top',_order,{sync: true},function(err){
 			if(err){
 				deferred.reject('Unable to commit batch write: ' + err);
 			}else{

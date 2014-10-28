@@ -27,32 +27,103 @@
     <label>Start: {{model.startTime}}</label><br />
     <label>End: {{model.endTime}}</label><br />
 
-    <table class="CSSTableGenerator" style="height: 30px;">
-        <tbody style="height:250px;">
+    <!--Dirty hack-->
+    <table style="margin-bottom:-28px;" class="CSSTableGenerator">
+        <tbody style="display: block; overflow-y: auto; overflow-x: hidden;">
+<!--
+
+                streamOrder: evt.streamOrder,
+                eventId: evt.eventId,
+
+                TotalTime: evt.perfStreamReceived - evt.perfClientSent,
+                SendToStream: evt.perfStreamReceived - evt.perfClientSent,
+                Between1: evt.perfBeginCommit - evt.perfStreamReceived,
+                WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
+                Between2: evt.perfPublishEvent - evt.perfEndCommit,
+                SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
+                BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
+                SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
+                SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
+                SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange-->
             <tr>
                 <td>#</td>
                 <td>Stream Order</td>
                 <td>Event Id</td>
-                <td>Client Sent</td>
-                <td>Stream Received</td>
-                <td>Begin Commit</td>
-                <td>End Commit</td>
-                <td>Publish Event</td>
-                <td>Publish Received</td>
-                <td>Client Received</td>
+                <td>Total Time</td>
+                <td>Send To Stream</td>
+                <td>Between1</td>
+                <td>Write To Disk</td>
+                <td>Between2</td>
+                <td>Send To BLP</td>
+                <td>BLP Logic</td>
+                <td>Send To Store</td>
+                <td>Set Model</td>
+                <td>Send To Client</td>
+            </tr>
+            <tr style="display:none;" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
+                <td>99</td>
+                <td>{{val.streamOrder}}</td>
+                <td>1a1b00a0-875e-4b12-9c50-88591bacb065</td>
+                <td>{{val.TotalTime}}</td>
+                <td>{{val.SendToStream}}</td>
+                <td>{{val.Between1}}</td>
+                <td>{{val.WriteToDisk}}</td>
+                <td>{{val.Between2}}</td>
+                <td>{{val.SendToBLP}}</td>
+                <td>{{val.BLPlogic}}</td>
+                <td>{{val.SendToStore}}</td>
+                <td>{{val.SetModel}}</td>
+                <td>{{val.SendToClient}}</td>
+            </tr>
+            <tr style="opacity:0;color:rgb(170, 212, 255);" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
+                <td>99</td>
+                <td>{{val.streamOrder}}</td>
+                <td>1a1b00a0-875e-4b12-9c50-88591bacb065</td>
+                <td>{{val.TotalTime}}</td>
+                <td>{{val.SendToStream}}</td>
+                <td>{{val.Between1}}</td>
+                <td>{{val.WriteToDisk}}</td>
+                <td>{{val.Between2}}</td>
+                <td>{{val.SendToBLP}}</td>
+                <td>{{val.BLPlogic}}</td>
+                <td>{{val.SendToStore}}</td>
+                <td>{{val.SetModel}}</td>
+                <td>{{val.SendToClient}}</td>
+            </tr>
+        </tbody>
+    </table>
 
+    <table class="CSSTableGenerator">
+        <tbody style="height:250px; display: block; overflow-y: auto; overflow-x: hidden;">
+            <tr style="line-height:0px;">
+                <td>#</td>
+                <td>Stream Order</td>
+                <td>Event Id</td>
+                <td>Total Time</td>
+                <td>Send To Stream</td>
+                <td>Between1</td>
+                <td>Write To Disk</td>
+                <td>Between2</td>
+                <td>Send To BLP</td>
+                <td>BLP Logic</td>
+                <td>Send To Store</td>
+                <td>Set Model</td>
+                <td>Send To Client</td>
             </tr>
             <tr ng-repeat="val in model.data track by $index | orderBy:streamOrder">
                 <td>{{$index}}</td>
                 <td>{{val.streamOrder}}</td>
                 <td>{{val.eventId}}</td>
-                <td>{{val.perfClientSent}}</td>
-                <td>{{val.perfStreamReceived}}</td>
-                <td>{{val.perfBeginCommit}}</td>
-                <td>{{val.perfEndCommit}}</td>
-                <td>{{val.perfPublishEvent}}</td>
-                <td>{{val.perfPublishReceived}}</td>
-                <td>{{val.perfClientReceived}}</td>
+                <td>{{val.TotalTime}}</td>
+                <td>{{val.SendToStream}}</td>
+                <td>{{val.Between1}}</td>
+                <td>{{val.WriteToDisk}}</td>
+                <td>{{val.Between2}}</td>
+                <td>{{val.SendToBLP}}</td>
+                <td>{{val.BLPlogic}}</td>
+                <td>{{val.SendToStore}}</td>
+                <td>{{val.SetModel}}</td>
+                <td>{{val.SendToClient}}</td>
             </tr>
         </tbody>
     </table>
@@ -88,27 +159,58 @@ angular.module('ESPlus',[])
 .controller('MainCtrl',['$scope','$http','$log',function($scope,$http,$log){
 
     $scope.model = [];
+    $scope.headerRow = [];
 
     $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')
     .then(function(data){
 
-//        $log.log('http success: ' + JSON.stringify(data));
+/*
+Total Time (client received - client sent)
+SendToStream (Stream Received - Client Sent)
+Between1 (Begin Commit - Stream Received)
+WriteToDisk (End Commit - Begin Commit)
+
+Between2 (Publish Event - End Commit)
+SendToBLP (Publish Received - Publish Event)
+BLPlogic (perfSendToStore - Publish Received)
+
+SendToStore (perfStoreReceived - perfSendToStore)
+SetModel (notify model change - perfStoreReceived)
+SendToClient (Client Received - Notify Model Change)
+*/
 
         data.data.data = _.map(data.data.data,function(e){
             var evt = e._metadata;
             var _newEvt = {
                 streamOrder: evt.streamOrder,
                 eventId: evt.eventId,
+
+                TotalTime: evt.perfClientReceived - evt.perfClientSent,
+                SendToStream: evt.perfStreamReceived - evt.perfClientSent,
+                Between1: evt.perfBeginCommit - evt.perfStreamReceived,
+                WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
+                Between2: evt.perfPublishEvent - evt.perfEndCommit,
+                SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
+                BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
+                SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
+                SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
+                SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange
+
+/*
                 perfClientSent: 0,
                 perfStreamReceived: evt.perfStreamReceived - evt.perfClientSent,
                 perfBeginCommit: evt.perfBeginCommit - evt.perfStreamReceived,
                 perfEndCommit: evt.perfEndCommit - evt.perfBeginCommit,
                 perfPublishEvent: evt.perfPublishEvent - evt.perfEndCommit,
                 perfPublishReceived: evt.perfPublishReceived - evt.perfPublishEvent,
-                perfClientReceived: evt.perfClientReceived - evt.perfPublishReceived
+                perfNotifyModelChange: evt.perfNotifyModelChange - evt.perfPublishReceived,
+                perfClientReceived: evt.perfClientReceived - evt.perfNotifyModelChange
+                */
             };
             return _newEvt;
         });
+
+        $scope.headerRow = [data.data.data[data.data.data.length - 1]];
 
         $scope.model = data.data;
     })

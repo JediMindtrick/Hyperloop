@@ -3,9 +3,9 @@ config = require('./config.js'),
 uuid = require('node-uuid'),
 streamClient = require('./streamClient');
 
-var singlePerfLimit = 10;
+var singlePerfLimit = 10000;
 var maxPerf = singlePerfLimit;
-var perfReceived = 0;
+var perfReceived = -10;//don't count the first ten towards the test
 var singlePerfStart = new Date();
 var ended = false;
 var dataPoints = [];
@@ -20,8 +20,6 @@ var saveDataPoints = function() {
         endTime: _end,
         data: dataPoints
     };
-
-//    console.log(JSON.stringify(testRun));
 
     streamClient.create(config.perfEventsHost,config.perfEventsPort)
         .then(function(_cl){
@@ -55,6 +53,11 @@ var onSinglePerf = function(data){
     data._metadata.perfClientReceived = (new Date()).getTime();
     dataPoints.push(data);
     perfReceived++;
+
+    if(perfReceived == 0){
+        singlePerfStart = new Date();
+        console.log('start perf ' + singlePerfStart);
+    }
 
     if(perfReceived % 100 === 0){
         console.log(perfReceived);
@@ -96,10 +99,10 @@ var runSinglePerf = function(){
     console.log('perfMax ' + perfMax)
 
 
-    singlePerfStart = new Date();
-    console.log('start perf ' + singlePerfStart);
+//    singlePerfStart = new Date();
+//    console.log('start perf ' + singlePerfStart);
 
-    for(var i = 1, l = singlePerfLimit; i <= l; i++){
+    for(var i = 1, l = singlePerfLimit + 11; i <= l; i++){
         send();
     }
 

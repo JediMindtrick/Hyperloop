@@ -119,10 +119,9 @@ console.log('store bound to ' + zmqStore);
 sock.on('message', function(msg){
 
     var val = JSON.parse(msg);
-    //console.log(JSON.stringify(val));
 
     var _storeReceived = (new Date()).getTime();
-    val._metadata.perfStoreReceived = _storeReceived;
+    val.data._metadata.perfStoreReceived = _storeReceived;
 
     store.set(val.path, val.data);
 });

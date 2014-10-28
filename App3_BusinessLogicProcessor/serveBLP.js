@@ -31,10 +31,9 @@ var onNew = function(msg){
 	var updates = logic(val);
 
 	if(updates){
-		var _sendToStore = (new Date()).getTime();
 		_.forEach(updates,function(update){
-			update._metadata = update._metadata ? update._metadata : {};
-			update._metadata.perfSendToStore = _sendToStore;
+			update.data._metadata = update.data._metadata ? update.data._metadata : {};
+			update.data._metadata.perfSendToStore = (new Date()).getTime();
 			storeSocket.send(JSON.stringify(update));
 		});
 	}
