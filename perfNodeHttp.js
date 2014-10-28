@@ -3,7 +3,7 @@ config = require('./config.js'),
 uuid = require('node-uuid'),
 streamClient = require('./streamClient');
 
-var singlePerfLimit = 1000;
+var singlePerfLimit = 10;
 var maxPerf = singlePerfLimit;
 var perfReceived = 0;
 var singlePerfStart = new Date();
