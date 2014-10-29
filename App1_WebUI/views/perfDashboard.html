@@ -23,31 +23,25 @@
 <div style="margin-left:50px;">
     <h1>ES+Realtime Model Push Performance Dashboard</h1>
 
-    <label>Name: {{model.name}}</label><br />
-    <label>Start: {{model.startTime}}</label><br />
-    <label>End: {{model.endTime}}</label><br />
+    <label>Name: {{dataHeader.name}}</label><br />
+    <label>Start: {{dataHeader.startTime}}</label><br />
+    <label>End: {{dataHeader.endTime}}</label><br />
 
+    <ul class="pagination" ng-hide="loading">   
+        <li><a ng-click="">&laquo;</a></li>
+        <li ng-repeat="r in ranges track by $index">
+            <a ng-click="setRange(r)">{{$index + 1}}</a>
+        </li>
+        <li><a ng-click="">&raquo;</a></li>
+    </ul>
+
+    <div style="width:80%;">
     <!--Dirty hack-->
-    <table style="margin-bottom:-28px;" class="CSSTableGenerator">
+    <table style="margin-bottom:-28px;" class="CSSTableGenerator" ng-hide="loading">
         <tbody style="display: block; overflow-y: auto; overflow-x: hidden;">
-<!--
-
-                streamOrder: evt.streamOrder,
-                eventId: evt.eventId,
-
-                TotalTime: evt.perfStreamReceived - evt.perfClientSent,
-                SendToStream: evt.perfStreamReceived - evt.perfClientSent,
-                Between1: evt.perfBeginCommit - evt.perfStreamReceived,
-                WriteToDisk: evt.perfEndCommit - evt.perfBeginCommit,
-                Between2: evt.perfPublishEvent - evt.perfEndCommit,
-                SendToBLP: evt.perfPublishReceived - evt.perfPublishEvent,
-                BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
-                SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
-                SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
-                SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange-->
             <tr>
                 <td>#</td>
-                <td>Stream Order</td>
+                <td style="padding-bottom:20px;">Stream Order</td>
                 <td>Event Id</td>
                 <td>Total Time</td>
                 <td>Send To Stream</td>
@@ -75,42 +69,42 @@
                 <td>{{val.SetModel}}</td>
                 <td>{{val.SendToClient}}</td>
             </tr>
-            <tr style="opacity:0;color:rgb(170, 212, 255);" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
-                <td>99</td>
-                <td>{{val.streamOrder}}</td>
-                <td>1a1b00a0-875e-4b12-9c50-88591bacb065</td>
-                <td>{{val.TotalTime}}</td>
-                <td>{{val.SendToStream}}</td>
-                <td>{{val.Between1}}</td>
-                <td>{{val.WriteToDisk}}</td>
-                <td>{{val.Between2}}</td>
-                <td>{{val.SendToBLP}}</td>
-                <td>{{val.BLPlogic}}</td>
-                <td>{{val.SendToStore}}</td>
-                <td>{{val.SetModel}}</td>
-                <td>{{val.SendToClient}}</td>
+            <tr style="line-height:0px;opacity:0;color:rgb(170, 212, 255);" ng-repeat="val in headerRow track by $index | orderBy:streamOrder">
+                <td style="color:rgb(170, 212, 255);">99</td>
+                <td style="color:rgb(170, 212, 255);">{{val.streamOrder}}</td>
+                <td style="color:rgb(170, 212, 255);">1a1b00a0-875e-4b12-9c50-88591bacb065</td>
+                <td style="color:rgb(170, 212, 255);">{{val.TotalTime}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.SendToStream}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.Between1}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.WriteToDisk}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.Between2}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.SendToBLP}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.BLPlogic}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.SendToStore}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.SetModel}}</td>
+                <td style="color:rgb(170, 212, 255);">{{val.SendToClient}}</td>
             </tr>
         </tbody>
     </table>
 
-    <table class="CSSTableGenerator">
+    <table class="CSSTableGenerator" ng-hide="loading">
         <tbody style="height:250px; display: block; overflow-y: auto; overflow-x: hidden;">
-            <tr style="line-height:0px;">
-                <td>#</td>
-                <td>Stream Order</td>
-                <td>Event Id</td>
-                <td>Total Time</td>
-                <td>Send To Stream</td>
-                <td>Between1</td>
-                <td>Write To Disk</td>
-                <td>Between2</td>
-                <td>Send To BLP</td>
-                <td>BLP Logic</td>
-                <td>Send To Store</td>
-                <td>Set Model</td>
-                <td>Send To Client</td>
+            <tr style="line-height:0px;color:rgb(170, 212, 255);">
+                <td style="color:rgb(170, 212, 255);">#</td>
+                <td style="color:rgb(170, 212, 255);">Stream Order</td>
+                <td style="color:rgb(170, 212, 255);">Event Id</td>
+                <td style="color:rgb(170, 212, 255);">Total Time</td>
+                <td style="color:rgb(170, 212, 255);">Send To Stream</td>
+                <td style="color:rgb(170, 212, 255);">Between1</td>
+                <td style="color:rgb(170, 212, 255);">Write To Disk</td>
+                <td style="color:rgb(170, 212, 255);">Between2</td>
+                <td style="color:rgb(170, 212, 255);">Send To BLP</td>
+                <td style="color:rgb(170, 212, 255);">BLP Logic</td>
+                <td style="color:rgb(170, 212, 255);">Send To Store</td>
+                <td style="color:rgb(170, 212, 255);">Set Model</td>
+                <td style="color:rgb(170, 212, 255);">Send To Client</td>
             </tr>
-            <tr ng-repeat="val in model.data track by $index | orderBy:streamOrder">
+            <tr ng-repeat="val in dataPoints track by $index | orderBy:streamOrder">
                 <td>{{$index}}</td>
                 <td>{{val.streamOrder}}</td>
                 <td>{{val.eventId}}</td>
@@ -127,12 +121,13 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
 </div>
 
-    <footer>
-        <p>&copy; 2014, Brandon Wilhite</p>
-    </footer>
+<footer>
+    <p>&copy; 2014, Brandon Wilhite</p>
+</footer>
 
 <script type="text/javascript">
 
@@ -161,25 +156,50 @@ angular.module('ESPlus',[])
     $scope.model = [];
     $scope.headerRow = [];
 
+    var dataHeader = {};
+    var dataPoints = [];
+    $scope.ranges = [];
+    $scope.selectedRange = {};
+    $scope.loading = true;
+
+    var getRange = function(arr,start,end){
+        //examples 1-100, 101-200
+        return _.take(_.rest(dataPoints,start-1),(end - start + 1));
+    };
+
+    var getRangePartitions = function(len,by){
+        var toReturn = [];
+        var ends = [];
+        var currStart = 1;
+
+        while(currStart < len){
+            var _range = {
+                begin: currStart,
+                end: currStart + (by - 1)
+            };
+
+            if(_range.end > len) _range.end = len;
+
+            currStart = _range.end + 1;
+
+            toReturn.push(_range);
+        }
+
+        return toReturn;
+    };
+
+    $scope.setRange = function(range){
+        $scope.selectedRange = range;
+
+        $scope.dataPoints = getRange(dataPoints,range.begin,range.end);
+        $scope.headerRow = [_.last($scope.dataPoints)];
+    };
+
     $http.get('http://54.68.110.91\:6001/Store/TestOrg/current/0')
     .then(function(data){
 
-/*
-Total Time (client received - client sent)
-SendToStream (Stream Received - Client Sent)
-Between1 (Begin Commit - Stream Received)
-WriteToDisk (End Commit - Begin Commit)
-
-Between2 (Publish Event - End Commit)
-SendToBLP (Publish Received - Publish Event)
-BLPlogic (perfSendToStore - Publish Received)
-
-SendToStore (perfStoreReceived - perfSendToStore)
-SetModel (notify model change - perfStoreReceived)
-SendToClient (Client Received - Notify Model Change)
-*/
-
-        data.data.data = _.map(data.data.data,function(e){
+        //data.data.data 
+        dataPoints = _.map(data.data.data,function(e){
             var evt = e._metadata;
             var _newEvt = {
                 streamOrder: evt.streamOrder,
@@ -194,25 +214,29 @@ SendToClient (Client Received - Notify Model Change)
                 BLPlogic: evt.perfSendToStore - evt.perfPublishReceived,
                 SendToStore: evt.perfStoreReceived - evt.perfSendToStore,
                 SetModel: evt.perfNotifyModelChange - evt.perfStoreReceived,
-                SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange
+                SendToClient: evt.perfClientReceived - evt.perfNotifyModelChange,
 
-/*
-                perfClientSent: 0,
-                perfStreamReceived: evt.perfStreamReceived - evt.perfClientSent,
-                perfBeginCommit: evt.perfBeginCommit - evt.perfStreamReceived,
-                perfEndCommit: evt.perfEndCommit - evt.perfBeginCommit,
-                perfPublishEvent: evt.perfPublishEvent - evt.perfEndCommit,
-                perfPublishReceived: evt.perfPublishReceived - evt.perfPublishEvent,
-                perfNotifyModelChange: evt.perfNotifyModelChange - evt.perfPublishReceived,
-                perfClientReceived: evt.perfClientReceived - evt.perfNotifyModelChange
-                */
+                perfClientSent: evt.perfClientSent,
+                perfStreamReceived: evt.perfStreamReceived,
+                perfBeginCommit: evt.perfBeginCommit,
+                perfEndCommit: evt.perfEndCommit,
+                perfPublishEvent: evt.perfPublishEvent,
+                perfPublishReceived: evt.perfPublishReceived,
+                perfSendToStore: evt.perfSendToStore,
+                perfStoreReceived: evt.perfStoreReceived,
+                perfNotifyModelChange: evt.perfNotifyModelChange,
+                perfClientReceived: evt.perfClientReceived                
             };
             return _newEvt;
         });
 
-        $scope.headerRow = [data.data.data[data.data.data.length - 1]];
+        delete data.data.data;
+        $scope.dataHeader = JSON.parse(JSON.stringify(data.data));
 
-        $scope.model = data.data;
+        $scope.ranges = getRangePartitions(dataPoints.length,500);
+        $scope.setRange(_.first($scope.ranges));
+
+        $scope.loading = false;
     })
     .catch(function(err){
         $log.log('http error: ' + JSON.stringify(err));

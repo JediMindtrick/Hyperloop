@@ -7,7 +7,7 @@ var _mapConfig = function(cfg){
 };
 
 if(!process.env.HYPERLOOP_ENV){
-	_mapConfig(local);
+	_mapConfig(require('./localconfig'));
 }else{
 	var _env = process.env.HYPERLOOP_ENV.toLowerCase();
 	switch(_env){
