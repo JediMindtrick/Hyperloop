@@ -27,5 +27,5 @@ if(!process.env.HYPERLOOP_ENV){
 }
 
 var a = require('./configA');
-exports.perfEventsHost = a.eventServerHttpHost;
-exports.perfEventsPort = a.eventServerHttpPort;
+exports.perfEventsHost = 'jedimindtrick7-4000.terminal.com';
+exports.perfEventsPort = 80;
