@@ -1,7 +1,8 @@
 var http = require('http'),
-config = require('./config.js'),
+config = require('../config.js'),
 uuid = require('node-uuid'),
-streamClient = require('./streamClient');
+streamClient = require('../streamClient'),
+perfRun = require('perfRun');
 
 var singlePerfLimit = 10000;
 var maxPerf = singlePerfLimit;
@@ -49,8 +50,20 @@ var checkEnd = function(){
     }
 };
 
+var currentPerfRun = null;
 var onSinglePerf = function(data){
     data._metadata.perfClientReceived = (new Date()).getTime();
+
+    if(data._metadata.startPerfRun && (!currentPerfRun || currentPerfRun.finished)){
+        //create a new perf run
+        currentPerfRun = perfRun.create(data);
+    }
+
+    if(currentPerfRun && !currentPerfRun.finished){
+        currentPerfRun.perf(data);
+    }
+
+/*
     dataPoints.push(data);
     perfReceived++;
 
@@ -64,46 +77,7 @@ var onSinglePerf = function(data){
     }
 
     checkEnd();
-};
-
-var _onHttpEnd = (
-    config.perfSendOnly ?
-    function(){ onSinglePerf(); } :
-    function(){ }
-    );
-
-var send = function(){ };
-
-config.eventServerHttpHost = 'jedimindtrick6-4000.terminal.com';
-config.eventServerHttpPort = 80;
-var io = require('./node_modules/socket.io/node_modules/socket.io-client');
-var outUrl = 'http://' + config.eventServerHttpHost + ':' + config.eventServerHttpPort;
-console.log('connecting to: ' + outUrl);
-var webAppSocket = io(outUrl);
-webAppSocket.on('connect',function(){
-    console.log('connected to web app socket');
-    send = function(){
-        webAppSocket.emit('POST',{
-            WhichEntity: 18,
-            Name: "Morticia",
-            _metadata: { 
-                perfClientSent: (new Date()).getTime()
-            }
-        });
-    };
-});
-
-
-var runSinglePerf = function(){
-    dataPoints = [];
-    perfReceived = 0;
-    perfMax = singlePerfLimit;
-    console.log('perfMax ' + perfMax);
-
-    for(var i = 1, l = singlePerfLimit + 11; i <= l; i++){
-        send();
-    }
-
+    */
 };
 
 config.realTimeStoreHttpHost = 'jedimindtrick6-6001.terminal.com';
@@ -112,33 +86,23 @@ var _base = 'http://' + config.realTimeStoreHttpHost + ':' + config.realTimeStor
 
 var onValue = function(data){};
 var socket = null;
-var getRef = function(path){
 
-    var root = io(_base);
+var root = io(_base);
 
-    root.on('subscribed',function(path){
-        console.log('server ack ' + path);
-        socket = io(_base + path);
+root.on('subscribed',function(path){
+    console.log('server ack ' + path);
+    socket = io(_base + path);
 
-        if(config.perfRoundtrip){
-            console.log('perfing round trip');
-            socket.on('POST',function(data){
-                onSinglePerf(data);
-            });
-        }
-
-        socket.on('connect',function(){
-
-            runSinglePerf();
-
-        });
+    socket.on('POST',function(data){
+        onSinglePerf(data);
     });
 
-    root.on('connect',function(){
-        console.log('subscribing to /TestOrg');
-        root.emit('subscribe','/TestOrg/current/0');
+    socket.on('connect',function(){
+        console.log('subscribed to /TestOrg/current/0');
     });
+});
 
-};
-
-getRef();
+root.on('connect',function(){
+    console.log('subscribing to /TestOrg');
+    root.emit('subscribe','/TestOrg/current/0');
+});

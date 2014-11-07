@@ -30,7 +30,6 @@ var _create = function(host,port){
                 }
                 _evt._metadata.streamClientSent = (new Date()).getTime();
             });
-            //console.log('stream client sending: ' + JSON.stringify(toSend));
             socket.emit('POST',toSend);
         };
 
