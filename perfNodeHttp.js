@@ -28,7 +28,7 @@ var saveDataPoints = function() {
                 process.exit();
             },3000);
         });
-}
+};
 
 var checkEnd = function(){
     if(perfReceived >= perfMax && !ended){
@@ -37,7 +37,7 @@ var checkEnd = function(){
 
         var t1 = _end;
         var t2 = singlePerfStart;
-        var dif = t1.getTime() - t2.getTime()
+        var dif = t1.getTime() - t2.getTime();
 
         var Seconds_from_T1_to_T2 = dif / 1000;
         var Seconds_Between_Dates = Math.abs(Seconds_from_T1_to_T2);
@@ -54,7 +54,7 @@ var onSinglePerf = function(data){
     dataPoints.push(data);
     perfReceived++;
 
-    if(perfReceived == 0){
+    if(perfReceived === 0){
         singlePerfStart = new Date();
         console.log('start perf ' + singlePerfStart);
     }
@@ -98,7 +98,7 @@ var runSinglePerf = function(){
     dataPoints = [];
     perfReceived = 0;
     perfMax = singlePerfLimit;
-    console.log('perfMax ' + perfMax)
+    console.log('perfMax ' + perfMax);
 
     for(var i = 1, l = singlePerfLimit + 11; i <= l; i++){
         send();
