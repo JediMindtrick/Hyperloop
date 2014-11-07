@@ -74,6 +74,8 @@ var _onHttpEnd = (
 
 var send = function(){ };
 
+config.eventServerHttpHost = 'jedimindtrick6-4000.terminal.com';
+config.eventServerHttpPort = 80;
 var io = require('./node_modules/socket.io/node_modules/socket.io-client');
 var outUrl = 'http://' + config.eventServerHttpHost + ':' + config.eventServerHttpPort;
 console.log('connecting to: ' + outUrl);
@@ -98,16 +100,14 @@ var runSinglePerf = function(){
     perfMax = singlePerfLimit;
     console.log('perfMax ' + perfMax)
 
-
-//    singlePerfStart = new Date();
-//    console.log('start perf ' + singlePerfStart);
-
     for(var i = 1, l = singlePerfLimit + 11; i <= l; i++){
         send();
     }
 
 };
 
+config.realTimeStoreHttpHost = 'jedimindtrick6-6001.terminal.com';
+config.realTimeStoreHttpPort = 80;
 var _base = 'http://' + config.realTimeStoreHttpHost + ':' + config.realTimeStoreHttpPort;
 
 var onValue = function(data){};
