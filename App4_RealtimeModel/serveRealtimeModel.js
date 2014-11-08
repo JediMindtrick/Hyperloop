@@ -80,6 +80,7 @@ io.on('connection',function(socket){
     });
 
     socket.on('POST',function(val){
+        console.log('val ' + JSON.stringify(val));
         var result = store.set(val.path, val.data);
     });
 

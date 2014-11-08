@@ -20,6 +20,7 @@ blpSubscriberSocket.bindSync(zmqBlpLocation);
 console.log('listening for stream updates at ' + zmqBlpLocation);
 
 var onNew = function(msg){
+
 	var val = JSON.parse(msg);
 
 	var _publishReceived = (new Date()).getTime();

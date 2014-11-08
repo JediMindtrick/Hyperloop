@@ -86,6 +86,7 @@ durableStream.create(config.testStreamName)
 
         //follow same semantics as http        
         socket.on('POST',function(val){
+
             var _streamReceived = (new Date()).getTime();
 
             var toPush = _.isArray(val) ? val : [val];
