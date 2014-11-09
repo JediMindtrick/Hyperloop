@@ -28,10 +28,10 @@ streamClient.create('jedimindtrick8-4000.terminal.com',80)
 
     var first = newData();
 	first._metadata.startPerfRun = true;
-	first._metadata.runSize = 1000;
+	first._metadata.runSize = 10;
 	onPerf(first);
 
-	for(var i = 0, l = 1301; i < l; i++){
+	for(var i = 0, l = 8; i < l; i++){
 		onPerf(newData());
 	}
 

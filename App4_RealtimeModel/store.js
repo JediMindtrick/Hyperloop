@@ -1,4 +1,5 @@
-var store = { "TestOrg": {"_metadata":{"version":1,"orgName":"TestOrg","entityName":"Entity1",
+var store = { "TestOrg": { } };
+/*var store = { "TestOrg": {"_metadata":{"version":1,"orgName":"TestOrg","entityName":"Entity1",
 "cSharpType":"Entities.Entity1","createdDate":"2014-10-04T10:58:24.0442344Z","snapshotFrequency":100},
 "current":{"1":
 
@@ -15,6 +16,7 @@ var store = { "TestOrg": {"_metadata":{"version":1,"orgName":"TestOrg","entityNa
 "lastUpdate":"2014-10-04T10:58:24.1379844Z"}},"snapshots":{"_metadata":{"version":0,
 "createdDate":"2014-10-04T10:58:24.1692344Z"}},"replays":{"_metadata":{"version":0,
 "createdDate":"2014-10-04T10:58:24.1848594Z"}}}};
+*/
 
 
 var observers = {};

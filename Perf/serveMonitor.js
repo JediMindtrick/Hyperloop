@@ -52,7 +52,8 @@ var getRef = function(){
 
 };
 
-streamClient.create(config.perfEventsHost,config.perfEventsPort)
+streamClient.create('localhost',4000)
+//streamClient.create(config.perfEventsHost,config.perfEventsPort)
 .then(function(_cl){
     console.log('report event stream client created');
     console.log('now listening for model updates');

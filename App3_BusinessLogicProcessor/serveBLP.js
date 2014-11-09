@@ -1,17 +1,16 @@
 var http = require('../simpleHttp'),
 config = require('../config'),
 zmq = require('zmq'),
-logic = require('./sampleLogic').logic,
-_ = require('lodash');
+_ = require('lodash'),
+argv = require('yargs').argv,
+logic = (argv.logic ? require('./' + argv.logic).logic : require('./sampleLogic').logic),
+modelRoot = (argv.modelRoot ? argv.modelRoot : '/Store/TestOrg');
 
 //Stuff going out
 var storeSocket = zmq.socket('push');
 var zmqStoreLocation = 'tcp://' + config.realTimeStoreZmqHost + ':' + config.realTimeStoreZmqPort;
 storeSocket.connect(zmqStoreLocation);
 console.log('bound to store at ' + zmqStoreLocation);
-var pushToModel = function(msg){
-    storeSocket.send(JSON.stringify({path:'/Store/TestOrg/current/0',data: msg}));
-};
 
 //Stuff coming in
 var blpSubscriberSocket = zmq.socket('pull');
@@ -29,10 +28,15 @@ var onNew = function(msg){
 		evt._metadata.perfPublishReceived = _publishReceived;
 	});
 
-	var updates = logic(val);
+	var updates = logic(val,modelRoot);
 
 	if(updates){
 		_.forEach(updates,function(update){
+			//tell it where to go...
+			if(update.path.indexOf(modelRoot) < 0){
+				update.path = modelRoot + update.path;
+			}
+
 			update.data._metadata = update.data._metadata ? update.data._metadata : {};
 			update.data._metadata.perfSendToStore = (new Date()).getTime();
 			storeSocket.send(JSON.stringify(update));

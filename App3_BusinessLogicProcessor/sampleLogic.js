@@ -1,5 +1,7 @@
 var _ = require('lodash');
 
+console.log('sample BLP logic loaded, did you forget to pass in --logic=... ?');
+
 var model = [];
 var onNew = function(_newEvents){
 	_.forEach(_newEvents,function(evt){
