@@ -1,23 +1,4 @@
-var store = { "TestOrg": { } };
-/*var store = { "TestOrg": {"_metadata":{"version":1,"orgName":"TestOrg","entityName":"Entity1",
-"cSharpType":"Entities.Entity1","createdDate":"2014-10-04T10:58:24.0442344Z","snapshotFrequency":100},
-"current":{"1":
-
-{"WhichEntity":1,"Name":"Bob-ff5d61ee-d169-462f-9918-9279b219b1b9","Steps":null,
-"_metadata":{
-    "streamName":"TestOrg-Entity1-ff5d61ee-d169-462f-9918-9279b219b1b9",
-    "streamLocation":"http://192.168.164.150:3117/TestOrg-Entity1-ff5d61ee-d169-462f-9918-9279b219b1b9",
-    "version":1,"createdDate":"2014-10-04T10:58:24.2161094Z","lastRebuild":"0001-01-01T05:00:00Z",
-    "lastUpdate":"2014-10-04T10:58:24.2161094Z"},
-"Id":"ff5d61ee-d169-462f-9918-9279b219b1b9"},
-
-"_metadata":{"streamName":"TestOrg-Entity1","streamLocation":"http://192.168.164.150:1113/TestOrg-Entity1",
-"version":1,"createdDate":"2014-10-04T10:58:24.1379844Z","lastRebuild":"2014-10-04T10:58:24.1379844Z",
-"lastUpdate":"2014-10-04T10:58:24.1379844Z"}},"snapshots":{"_metadata":{"version":0,
-"createdDate":"2014-10-04T10:58:24.1692344Z"}},"replays":{"_metadata":{"version":0,
-"createdDate":"2014-10-04T10:58:24.1848594Z"}}}};
-*/
-
+var store = { "TestOrg": { "PerfRuns": {} } };
 
 var observers = {};
 var channel = null;
