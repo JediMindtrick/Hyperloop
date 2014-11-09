@@ -1,4 +1,15 @@
-var store = { "TestOrg": { "PerfRuns": {} } };
+var store = { 
+    TestOrg: { 
+        PerfRuns: { 
+            List: { },
+            Completed: { }
+        },
+        PerfSets: {
+            List:{ },
+            Completed: { }
+        }
+    } 
+};
 
 var observers = {};
 var channel = null;

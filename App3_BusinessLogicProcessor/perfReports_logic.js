@@ -6,15 +6,54 @@ console.log('perf reports logic loaded');
 //perfsetstart
 //perfsetend
 //perfrunend
-var model = [];
+/*
+var store = { 
+    TestOrg: { 
+        PerfRuns: { 
+            List: { },
+            Completed: { }
+        },
+        Sets: {
+            List:{ },
+            Completed: { }
+        }
+    } 
+};
+*/
 
 var handlePerfRunStart = function(evt){
-	console.log('handling start');
+	console.log('handling run start');
 	var toReturn = {
-		path: '/PerfRuns/' + evt.report.runId,
+		path: '/PerfRuns/List/' + evt.report.runId,
 		data: evt
 	};
-	console.log('returning' + JSON.stringify(toReturn));
+	return toReturn;
+};
+
+var handlePerfSetStart = function(evt){
+	console.log('handling set start');
+	var toReturn = {
+		path: '/PerfSets/List/' + evt.report.setId,
+		data: evt
+	};
+	return toReturn;
+};
+
+var handlePerfSetEnd = function(evt){
+	console.log('handling set end');
+	var toReturn = {
+		path: '/PerfSets/Completed/' + evt.report.setId,
+		data: evt
+	};
+	return toReturn;
+};
+
+var handlePerfRunEnd = function(evt){
+	console.log('handling run end');
+	var toReturn = {
+		path: '/PerfRuns/Completed/' + evt.report.runId,
+		data: evt
+	};
 	return toReturn;
 };
 
@@ -23,18 +62,19 @@ var onNew = function(_newEvents){
 
 	_.forEach(_newEvents,function(evt){
 		console.log(evt._metadata.eventType);
-		//model = evt;
 		if(evt._metadata.eventType.toLowerCase() === 'perfrunstart'){
 			toReturn.push(handlePerfRunStart(evt));
 		}
-//		toReturn.push({path: '/PerfRuns', data: evt});
+		if(evt._metadata.eventType.toLowerCase() === 'perfsetstart'){
+			toReturn.push(handlePerfSetStart(evt));
+		}
+		if(evt._metadata.eventType.toLowerCase() === 'perfsetend'){
+			toReturn.push(handlePerfSetEnd(evt));
+		}
+		if(evt._metadata.eventType.toLowerCase() === 'perfrunend'){
+			toReturn.push(handlePerfRunEnd(evt));
+		}
 	});
-
-/*
-	return [
-		{ path: '/PerfRuns', data: model }
-	];
-	*/
 
 	return toReturn;
 };
