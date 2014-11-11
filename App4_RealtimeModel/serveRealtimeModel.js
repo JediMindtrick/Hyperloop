@@ -97,10 +97,7 @@ io.on('connection',function(socket){
             console.log('someone connected to ' + path);
 
             var _val = store.get('/Store' + path);
-            //CONSIDER emitting 'read' instead of 'value', which might map to the semantics better
-            //CONSIDER emitting POST, or even PUT, since those would be our preferred semantics throughout
-            //PUT might be better, since we are technically updating the model
-            if(_val != null){
+            if(_val !== null){
               socket.emit('POST',_val);
             }
 
